@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 import sys
 from pathlib import Path
+from lint_common import die
 
-def die(msg: str) -> int:
-  print(f"evidence_location_lint: ERROR: {msg}", file=sys.stderr)
-  return 1
 
 def main() -> int:
   bad = []
@@ -15,7 +13,8 @@ def main() -> int:
         bad.append(p.as_posix())
 
   if bad:
-    return die("lint logs must be in artifacts/logs, but found under artifacts/test_results: " + ", ".join(bad))
+    return die("evidence_location_lint", "lint logs must be in artifacts/logs, but found under artifacts/test_results: " + ", ".join(bad))
+
 
   print("evidence_location_lint: OK")
   return 0

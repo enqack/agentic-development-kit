@@ -2,15 +2,12 @@
 import re
 import sys
 from pathlib import Path
-
-def die(msg: str) -> int:
-  print(f"context_manifest_lint: ERROR: {msg}", file=sys.stderr)
-  return 1
+from lint_common import die
 
 def main() -> int:
   p = Path("artifacts/logs/context_manifest.md")
   if not p.exists():
-    return die("missing artifacts/logs/context_manifest.md (prep-context must emit it)")
+    return die("context_manifest_lint", "missing artifacts/logs/context_manifest.md (prep-context must emit it)")
 
   txt = p.read_text(encoding="utf-8")
 
@@ -21,13 +18,13 @@ def main() -> int:
     ".agentsignore",
     "files read",
   ]
-  missing = [r for r in required if re.search(rf"\\b{re.escape(r)}\\b", txt, flags=re.IGNORECASE) is None]
+  missing = [r for r in required if re.search(rf"\b{re.escape(r)}\b", txt, flags=re.IGNORECASE) is None]
   if missing:
-    return die(f"context_manifest.md missing required fields: {', '.join(missing)}")
+    return die("context_manifest_lint", f"context_manifest.md missing required fields: {', '.join(missing)}")
 
   # Disallow file:// in manifest (helps catch accidental absolute pointers).
   if "file://" in txt:
-    return die("context_manifest.md contains file://; use repo-relative paths only")
+    return die("context_manifest_lint", "context_manifest.md contains file://; use repo-relative paths only")
 
   print("context_manifest_lint: OK")
   return 0
