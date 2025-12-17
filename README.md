@@ -1,15 +1,18 @@
-# Patch v5.5: Developer hygiene
+# Patch v5.7: Language-agnostic testing hook + verification requirements rename
 
-This patch adds:
-- `.gitignore` aligned with agent data-plane vs control-plane separation
-- `requirements.txt` for tool/test environment setup
+This patch makes the template more explicitly language-agnostic by:
+- introducing `tools/test.sh` as the canonical project test hook (Go/Rust/Node/Python examples included)
+- renaming verification dependencies to `requirements-verify.txt` (preferred), while keeping legacy `requirements.txt` acceptable
+- updating `tools/verify_all.sh` to run tests only via `tools/test.sh`
 
-## Quick start (local)
+## Local setup (verification tooling)
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-verify.txt
 ```
 
-After this, all tools under `tools/` and `tools/verify_all.sh` should run cleanly.
+## Defining tests for your language
+
+Edit `tools/test.sh` to run your project’s tests deterministically.

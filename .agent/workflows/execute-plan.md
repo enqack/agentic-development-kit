@@ -37,11 +37,11 @@ Workspace root MUST NOT contain:
 
 If such files are produced by tooling, move them into the run directory or delete them.
 
-## Procedure
+## Verification (recommended default)
 
-1. Apply the smallest changes needed to test each hypothesis.
-2. Run tests defined in the plan (unit/integration/build).
-3. Record evidence under `artifacts/test_results/` and `artifacts/logs/`.
-4. Produce `docs/exec/runs/<run-id>/walkthrough.md`.
-5. Run `post-verify` (audit-only).
-6. Run `post-execution-review` (audit-only).
+Run `tools/verify_all.sh` to:
+- execute lints
+- run project tests via `tools/test.sh` (language-agnostic hook)
+- capture outputs under `artifacts/logs/*.log` and `artifacts/test_results/*`
+
+These logs are preferred evidence pointers in `post_verify_report.md`.

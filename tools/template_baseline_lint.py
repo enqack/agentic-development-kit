@@ -7,9 +7,13 @@ def die(msg: str) -> int:
   return 1
 
 def main() -> int:
+  # Allow either requirements-verify.txt (preferred) or legacy requirements.txt.
+  req_ok = Path("requirements-verify.txt").exists() or Path("requirements.txt").exists()
+  if not req_ok:
+    return die("missing verification requirements file: requirements-verify.txt (preferred) or requirements.txt (legacy)")
+
   required = [
     Path(".gitignore"),
-    Path("requirements.txt"),
     Path(".agentsignore"),
     Path("AGENTS.md"),
     Path("AGENDA.md"),

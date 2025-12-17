@@ -37,8 +37,6 @@ fi
 if [ -f tools/run_artifacts_lint.py ] && [ -d docs/exec/runs ]; then
   run_log "run_artifacts_lint" python3 tools/run_artifacts_lint.py
 fi
-
-# Evidence location lint
 if [ -f tools/evidence_location_lint.py ]; then
   run_log "evidence_location_lint" python3 tools/evidence_location_lint.py
 fi
@@ -52,17 +50,12 @@ if [ -f tools/plan_lint.py ]; then
   fi
 fi
 
-# Unit tests: pytest if available, else unittest
-if [ -d tests ]; then
-  if command -v pytest >/dev/null 2>&1; then
-    echo "==> pytest @ ${ts}" | tee artifacts/test_results/pytest_output.txt
-    pytest -q >>artifacts/test_results/pytest_output.txt 2>&1
-    echo "==> OK: pytest" | tee -a artifacts/test_results/pytest_output.txt
-  else
-    echo "==> unittest @ ${ts}" | tee artifacts/test_results/unittest_output.txt
-    python3 -m unittest discover -s tests -p "test*.py" >>artifacts/test_results/unittest_output.txt 2>&1
-    echo "==> OK: unittest" | tee -a artifacts/test_results/unittest_output.txt
-  fi
+# Project tests (language-agnostic hook)
+if [ -x tools/test.sh ]; then
+  # Capture full stdout/stderr to a log; test.sh can also tee into artifacts/test_results/.
+  run_log "project_tests" tools/test.sh
+else
+  echo "verify_all: tools/test.sh not present/executable; skipping project tests"
 fi
 
 echo "verify_all: OK"

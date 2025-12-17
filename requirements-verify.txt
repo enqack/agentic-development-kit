@@ -1,0 +1,10 @@
+# Verification tooling dependencies (NOT project runtime deps)
+# This repo template is language-agnostic; Python is used only to run the verification tools in tools/.
+#
+# Install:
+#   python3 -m venv .venv
+#   source .venv/bin/activate
+#   pip install -r requirements-verify.txt
+#
+# Optional: enable pytest for Python projects that choose to use it.
+pytest>=7.0,<9.0
