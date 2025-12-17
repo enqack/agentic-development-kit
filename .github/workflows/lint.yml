@@ -14,10 +14,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Agenda lint
         run: python3 tools/agenda_lint.py
+
       - name: Gate evidence on code changes
         run: tools/require_evidence_if_code_changed.sh
+
       - name: Plan lint (when present)
         run: |
           if [ -f implementation_plan.json ]; then
@@ -25,6 +28,15 @@ jobs:
           else
             echo "implementation_plan.json not present; skipping plan lint"
           fi
+
+      - name: Context manifest lint (when present)
+        run: |
+          if [ -f artifacts/logs/context_manifest.md ]; then
+            python3 tools/context_manifest_lint.py
+          else
+            echo "context_manifest.md not present; skipping context manifest lint"
+          fi
+
       - name: Post-verify lint (when present)
         run: |
           if [ -f artifacts/logs/post_verify_report.md ]; then
@@ -32,6 +44,7 @@ jobs:
           else
             echo "post_verify_report not present; skipping post-verify lint"
           fi
+
       - name: Lessons lint (when present)
         run: |
           if [ -f docs/exec/lessons-learned.md ]; then

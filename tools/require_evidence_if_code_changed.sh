@@ -12,14 +12,7 @@ fi
 
 CHANGED="$(git diff --name-only "${BASE}" "${HEAD}" || true)"
 
-# Define "code change" as anything that is not:
-# - docs/*
-# - .agent/*
-# - artifacts/*
-# - tools/*
-# - .github/*
-# - markdown
-NON_CODE_RE='^(docs/|\\.agent/|artifacts/|tools/|\\.github/|.*\\.md$)'
+NON_CODE_RE='^(docs/|\.agent/|artifacts/|tools/|\.github/|.*\.md$)'
 
 CODE_CHANGED=0
 while IFS= read -r f; do
@@ -40,6 +33,7 @@ echo "gate: code changes detected; requiring evidence bundle"
 for req in \
   "implementation_plan.json" \
   "walkthrough.md" \
+  "artifacts/logs/context_manifest.md" \
   "artifacts/logs/post_verify_report.md" \
   "docs/exec/lessons-learned.md"
 do
