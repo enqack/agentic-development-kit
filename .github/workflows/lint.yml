@@ -15,57 +15,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Agenda lint
-        run: python3 tools/agenda_lint.py
-
       - name: Gate evidence on code changes
         run: tools/require_evidence_if_code_changed.sh
 
-      - name: Run artifacts lint (when present)
-        run: |
-          if [ -d docs/exec/runs ]; then
-            python3 tools/run_artifacts_lint.py
-          else
-            echo "docs/exec/runs not present; skipping run_artifacts_lint"
-          fi
-
-      - name: Plan lint (when present)
-        run: |
-          # Keep the existing root plan lint for backwards compatibility, but prefer run paths.
-          if [ -f implementation_plan.json ]; then
-            python3 tools/plan_lint.py
-          else
-            echo "implementation_plan.json not present at root; skipping plan_lint"
-          fi
-
-      - name: Walkthrough lint (when present)
-        run: |
-          if [ -f walkthrough.md ] || [ -d docs/exec/runs ]; then
-            python3 tools/walkthrough_lint.py
-          else
-            echo "no walkthrough found; skipping walkthrough lint"
-          fi
-
-      - name: Context manifest lint (when present)
-        run: |
-          if [ -f artifacts/logs/context_manifest.md ]; then
-            python3 tools/context_manifest_lint.py
-          else
-            echo "context_manifest.md not present; skipping context manifest lint"
-          fi
-
-      - name: Post-verify lint (when present)
-        run: |
-          if [ -f artifacts/logs/post_verify_report.md ]; then
-            python3 tools/post_verify_lint.py
-          else
-            echo "post_verify_report not present; skipping post-verify lint"
-          fi
-
-      - name: Lessons lint (when present)
-        run: |
-          if [ -f docs/exec/lessons-learned.md ]; then
-            python3 tools/lessons_lint.py
-          else
-            echo "lessons-learned not present; skipping lessons lint"
-          fi
+      - name: Verify all (lints + tests when available)
+        run: tools/verify_all.sh
