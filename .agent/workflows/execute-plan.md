@@ -2,12 +2,18 @@
 description: Execute an approved implementation plan, collect evidence, and summarize results
 operating_mode: full-execution
 artifacts_required:
+  - docs/intent/project_intent.md
   - docs/exec/runs/<run-id>/walkthrough.md
   - artifacts/test_results/
   - artifacts/logs/
 ---
 
 # execute-plan
+
+Precondition:
+- `docs/intent/project_intent.md` exists and reflects the repo's purpose.
+
+If precondition is not met, fail closed and run `establish-intent`.
 
 ## Inputs
 
@@ -16,32 +22,10 @@ artifacts_required:
 
 If inputs are missing, fail closed.
 
-## Walkthrough requirements (normative)
-
-`docs/exec/runs/<run-id>/walkthrough.md` MUST:
-- reference files using **repo-relative paths only**
-- NOT use `file://` URLs
-- NOT use absolute filesystem paths
-- NOT truncate evidence pointers with `...`
-- list only **workspace artifacts** as evidence
-
-It MUST NOT include an "Artifacts (Brain)" (or equivalent) section.
-
-## Root hygiene (normative)
-
-Workspace root MUST NOT contain:
-- `implementation_plan.*`
-- `walkthrough.md`
-- `*.resolved*`
-- `*.metadata.json`
-
-If such files are produced by tooling, move them into the run directory or delete them.
-
 ## Verification (recommended default)
 
 Run `tools/verify_all.sh` to:
+- validate template baseline + intent
 - execute lints
 - run project tests via `tools/test.sh` (language-agnostic hook)
 - capture outputs under `artifacts/logs/*.log` and `artifacts/test_results/*`
-
-These logs are preferred evidence pointers in `post_verify_report.md`.

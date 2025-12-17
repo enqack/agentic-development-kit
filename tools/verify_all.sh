@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir -p artifacts/logs artifacts/test_results docs/exec/runs
+mkdir -p artifacts/logs artifacts/test_results docs/exec/runs docs/intent
 
 ts="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
@@ -18,6 +18,11 @@ run_log() {
 # Baseline template presence
 if [ -f tools/template_baseline_lint.py ]; then
   run_log "template_baseline_lint" python3 tools/template_baseline_lint.py
+fi
+
+# Intent must exist for any real work. (Fail closed.)
+if [ -f tools/intent_lint.py ]; then
+  run_log "intent_lint" python3 tools/intent_lint.py
 fi
 
 # Lints
@@ -52,7 +57,6 @@ fi
 
 # Project tests (language-agnostic hook)
 if [ -x tools/test.sh ]; then
-  # Capture full stdout/stderr to a log; test.sh can also tee into artifacts/test_results/.
   run_log "project_tests" tools/test.sh
 else
   echo "verify_all: tools/test.sh not present/executable; skipping project tests"
