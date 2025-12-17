@@ -11,13 +11,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: Agenda lint
         run: python3 tools/agenda_lint.py
-      - name: Gate plan + walkthrough on code changes
+      - name: Gate plan + walkthrough + post-verify on code changes
         run: tools/require_plan_and_walkthrough_if_code_changed.sh
       - name: Plan lint (when present)
         run: |
@@ -25,4 +24,11 @@ jobs:
             python3 tools/plan_lint.py
           else
             echo "implementation_plan.json not present; skipping plan lint"
+          fi
+      - name: Post-verify lint (when present)
+        run: |
+          if [ -f artifacts/logs/post_verify_report.md ]; then
+            python3 tools/post_verify_lint.py
+          else
+            echo "post_verify_report not present; skipping post-verify lint"
           fi

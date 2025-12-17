@@ -5,8 +5,6 @@ operating_mode: audit-only | design-only
 
 # verify-agenda
 
-## Completion Classification
-
 Agenda items MUST be classified as one of:
 
 - finished
@@ -19,7 +17,6 @@ Rules:
 - `finished` items MUST include evidence pointers (paths only).
 - `unknown` items are defects and MUST specify what evidence would resolve them.
 
-## Planning Rule
-
+Planning rule:
 Items marked `finished` MUST NOT appear in `implementation_plan.*`
 unless explicitly reopened under a new hypothesis ID (or marked regression-only).

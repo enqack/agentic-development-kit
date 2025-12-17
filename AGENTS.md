@@ -49,6 +49,7 @@ All non-trivial work MUST follow:
 3. **Act** – Apply changes (only in full-execution mode)
 4. **Prove or Falsify** – Execute tests and collect evidence
 5. **Summarize** – Produce `walkthrough.md`
+6. **Reconcile** – Re-run agenda verification and record results
 
 Absence of proof is unresolved work.
 

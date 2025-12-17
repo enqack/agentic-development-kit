@@ -3,12 +3,7 @@ import re
 import sys
 from pathlib import Path
 
-REQUIRED_HEADINGS = [
-  "## Active Hypotheses",
-  "## Blockers",
-  "## Deferred Risks",
-]
-
+REQUIRED_HEADINGS = ["## Active Hypotheses", "## Blockers", "## Deferred Risks"]
 VALID_STATUSES = {"finished", "in-progress", "blocked", "not-started", "unknown"}
 
 def die(msg: str) -> int:
@@ -26,20 +21,20 @@ def main() -> int:
     if h not in text:
       return die(f"missing required heading: {h}")
 
-  statuses = re.findall(r"^\s*Status:\s*([A-Za-z\-]+)\s*$", text, flags=re.MULTILINE)
+  statuses = re.findall(r"^\\s*Status:\\s*([A-Za-z\\-]+)\\s*$", text, flags=re.MULTILINE)
   if not statuses:
-    return die("no agenda item statuses found (expected lines like 'Status: not-started')")
+    return die("no agenda item statuses found (expected 'Status: not-started')")
 
   bad = sorted({s for s in statuses if s not in VALID_STATUSES})
   if bad:
-    return die(f"invalid status values: {', '.join(bad)} (valid: {', '.join(sorted(VALID_STATUSES))})")
+    return die(f"invalid status values: {', '.join(bad)}")
 
-  blocks = re.split(r"\n\s*\n", text)
+  blocks = re.split(r"\\n\\s*\\n", text)
   for b in blocks:
-    if re.search(r"^\s*Status:\s*finished\s*$", b, flags=re.MULTILINE):
-      m = re.search(r"^\s*Evidence:\s*(.+)\s*$", b, flags=re.MULTILINE)
+    if re.search(r"^\\s*Status:\\s*finished\\s*$", b, flags=re.MULTILINE):
+      m = re.search(r"^\\s*Evidence:\\s*(.+)\\s*$", b, flags=re.MULTILINE)
       if not m or not m.group(1).strip():
-        return die("an item marked finished is missing a non-empty 'Evidence:' field")
+        return die("an item marked finished is missing non-empty Evidence:")
 
   print("agenda_lint: OK")
   return 0

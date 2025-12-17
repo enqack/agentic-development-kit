@@ -1,18 +1,19 @@
-# General Software Development Agent Template (v2)
+# General Software Development Agent Template (v3)
 
-This repository template provides a **planning + execution** workflow for an agent that behaves
-like a planning compiler: verify -> plan -> execute -> summarize, with CI guardrails.
+Adds **post-execution agenda verification** to keep the work queue aligned with reality.
 
-## Workflows
+## Pipeline
 
-- `prep-context` (audit-only): load required context
-- `verify-agenda` (audit/design-only): classify agenda items + completion evidence
-- `plan-execution` (design-only): produce `implementation_plan.md` + `implementation_plan.json`
-- `execute-plan` (full-execution): apply plan, run tests, write evidence, produce `walkthrough.md`
+1. `prep-context` (audit-only)
+2. `verify-agenda` (audit/design-only)
+3. `plan-execution` (design-only) -> emits `implementation_plan.*`
+4. `execute-plan` (full-execution) -> emits `walkthrough.md` + evidence under `artifacts/`
+5. `post-verify` (audit-only) -> emits `artifacts/logs/post_verify_report.md`
 
 ## Local checks
 
 ```sh
 python3 tools/agenda_lint.py
 python3 tools/plan_lint.py
+python3 tools/post_verify_lint.py
 ```

@@ -21,8 +21,7 @@
           "type": "string"
         },
         "generated_at": {
-          "type": "string",
-          "description": "RFC3339 timestamp"
+          "type": "string"
         },
         "operating_mode": {
           "type": "string",
@@ -173,18 +172,6 @@
               "notes": {
                 "type": "string"
               }
-            }
-          },
-          "risks": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "dependencies": {
-            "type": "array",
-            "items": {
-              "type": "string"
             }
           }
         }

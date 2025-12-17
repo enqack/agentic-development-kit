@@ -8,13 +8,9 @@ artifacts_required:
 
 # plan-execution
 
-## Outputs
-
-This workflow MUST produce:
+Outputs:
 - `implementation_plan.md` (human-readable)
 - `implementation_plan.json` (machine-checkable; schema: `tools/plan_schema.json`)
-
-## Requirements
 
 The plan MUST include:
 - hypotheses (stable IDs)
