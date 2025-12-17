@@ -21,12 +21,29 @@ jobs:
       - name: Gate evidence on code changes
         run: tools/require_evidence_if_code_changed.sh
 
+      - name: Run artifacts lint (when present)
+        run: |
+          if [ -d docs/exec/runs ]; then
+            python3 tools/run_artifacts_lint.py
+          else
+            echo "docs/exec/runs not present; skipping run_artifacts_lint"
+          fi
+
       - name: Plan lint (when present)
         run: |
+          # Keep the existing root plan lint for backwards compatibility, but prefer run paths.
           if [ -f implementation_plan.json ]; then
             python3 tools/plan_lint.py
           else
-            echo "implementation_plan.json not present; skipping plan lint"
+            echo "implementation_plan.json not present at root; skipping plan_lint"
+          fi
+
+      - name: Walkthrough lint (when present)
+        run: |
+          if [ -f walkthrough.md ] || [ -d docs/exec/runs ]; then
+            python3 tools/walkthrough_lint.py
+          else
+            echo "no walkthrough found; skipping walkthrough lint"
           fi
 
       - name: Context manifest lint (when present)

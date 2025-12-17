@@ -7,36 +7,11 @@ artifacts_required:
 
 # post-execution-review
 
-## Purpose
-
-Record durable learnings from plan execution.
-
-- `docs/exec/lessons-learned.md` is REQUIRED for non-trivial work that changes code.
-- `docs/exec/cursed-knowledge.md` is OPTIONAL, but encouraged when a sharp edge cost real time.
-
-## Inputs
-
-- `walkthrough.md`
+Inputs:
+- `docs/exec/runs/<run-id>/walkthrough.md`
 - `artifacts/logs/post_verify_report.md` (preferred)
 - Evidence under `artifacts/`
 
-If required inputs are missing, fail closed.
-
-## Rules
-
-- Entries MUST include evidence pointers (paths + optional anchors).
-- Do NOT add an entry if there is no evidence (avoid mythmaking).
-
-## Output format
-
-Append a new section to `docs/exec/lessons-learned.md`:
-
-### YYYY-MM-DD — <summary>
-- What went well:
-- What went poorly:
-- Surprises:
-- Changes to make next time:
-- Follow-ups (new agenda items):
-- Evidence: ...
-
-Optionally append to `docs/exec/cursed-knowledge.md`.
+Rules:
+- Entries MUST include evidence pointers (repo-relative paths).
+- Do NOT add an entry if there is no evidence.
