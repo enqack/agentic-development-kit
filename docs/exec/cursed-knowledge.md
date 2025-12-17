@@ -7,5 +7,5 @@
 - Trigger:
 - Detection:
 - Mitigation:
-- Evidence: artifacts/... , walkthrough.md#..., post_verify_report.md#...
+- Evidence: artifacts/... , walkthrough.md#..., artifacts/logs/post_verify_report.md#...
 - Notes:

@@ -16,7 +16,7 @@ When constraints cannot be satisfied, the agent MUST **fail closed**.
 - **Artifact**: durable evidence output (plans, logs, test results, diffs)
 - **Non-trivial work**: changes that affect behavior, APIs, data, security, architecture, or failure modes
 
-## Epistemic Contract (Scientific Method)
+## Epistemic Contract
 
 All outputs are working theories validated only through evidence.
 
@@ -42,7 +42,7 @@ All non-trivial work MUST follow:
 4. Prove or Falsify – run tests and collect evidence
 5. Summarize – produce `walkthrough.md`
 6. Reconcile – run `post-verify` and emit reconciliation report
-7. Reflect – update `lessons-learned.md` (+ optional `cursed-knowledge.md`)
+7. Reflect – update `docs/exec/lessons-learned.md` (+ optional `docs/exec/cursed-knowledge.md`)
 
 Absence of proof is unresolved work.
 
@@ -62,6 +62,11 @@ artifacts/
 ├── diffs/
 └── test_results/
 ```
+
+## Agent Ignore
+
+Agents MUST respect `.agentsignore` when selecting files to read as context.
+If `.agentsignore` is missing, fail closed.
 
 ## AGENDA.md Minimum
 

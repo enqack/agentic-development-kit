@@ -2,7 +2,7 @@
 description: Capture institutional memory from an executed plan
 operating_mode: audit-only
 artifacts_required:
-  - lessons-learned.md
+  - docs/exec/lessons-learned.md
 ---
 
 # post-execution-review
@@ -11,8 +11,8 @@ artifacts_required:
 
 Record durable learnings from plan execution.
 
-- `lessons-learned.md` is REQUIRED for non-trivial work that changes code.
-- `cursed-knowledge.md` is OPTIONAL, but encouraged when a sharp edge cost real time.
+- `docs/exec/lessons-learned.md` is REQUIRED for non-trivial work that changes code.
+- `docs/exec/cursed-knowledge.md` is OPTIONAL, but encouraged when a sharp edge cost real time.
 
 ## Inputs
 
@@ -29,7 +29,7 @@ If required inputs are missing, fail closed.
 
 ## Output format
 
-Append a new section to `lessons-learned.md`:
+Append a new section to `docs/exec/lessons-learned.md`:
 
 ### YYYY-MM-DD — <summary>
 - What went well:
@@ -39,12 +39,4 @@ Append a new section to `lessons-learned.md`:
 - Follow-ups (new agenda items):
 - Evidence: ...
 
-Optionally append to `cursed-knowledge.md`:
-
-### YYYY-MM-DD — <short title>
-- Symptom:
-- Trigger:
-- Detection:
-- Mitigation:
-- Evidence: ...
-- Notes:
+Optionally append to `docs/exec/cursed-knowledge.md`.

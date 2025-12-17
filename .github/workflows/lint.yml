@@ -17,7 +17,7 @@ jobs:
       - name: Agenda lint
         run: python3 tools/agenda_lint.py
       - name: Gate evidence on code changes
-        run: tools/require_plan_walkthrough_postverify_lessons_if_code_changed.sh
+        run: tools/require_evidence_if_code_changed.sh
       - name: Plan lint (when present)
         run: |
           if [ -f implementation_plan.json ]; then
@@ -34,8 +34,8 @@ jobs:
           fi
       - name: Lessons lint (when present)
         run: |
-          if [ -f lessons-learned.md ]; then
+          if [ -f docs/exec/lessons-learned.md ]; then
             python3 tools/lessons_lint.py
           else
-            echo "lessons-learned.md not present; skipping lessons lint"
+            echo "lessons-learned not present; skipping lessons lint"
           fi
