@@ -23,12 +23,18 @@ while IFS= read -r f; do
 done <<< "${CHANGED}"
 
 if [[ "${CODE_CHANGED}" -eq 0 ]]; then
-  echo "gate: no code changes; no plan/walkthrough/post-verify required"
+  echo "gate: no code changes; no plan/walkthrough/post-verify/lessons required"
   exit 0
 fi
 
-echo "gate: code changes detected; requiring plan + walkthrough + post_verify_report"
-for req in "implementation_plan.json" "walkthrough.md" "artifacts/logs/post_verify_report.md"; do
+echo "gate: code changes detected; requiring plan + walkthrough + post_verify_report + lessons-learned"
+
+for req in \
+  "implementation_plan.json" \
+  "walkthrough.md" \
+  "artifacts/logs/post_verify_report.md" \
+  "lessons-learned.md"
+do
   [[ -f "${req}" ]] || { echo "gate: ERROR: missing ${req}" >&2; exit 1; }
 done
 

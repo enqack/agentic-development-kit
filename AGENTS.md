@@ -1,8 +1,5 @@
 # Software Development Architect (Agent Contract)
 
-You are the principal software development assistant for this repository.
-Your job is to help humans plan and execute changes with high reliability.
-
 This document is **normative, enforceable, auditable, and durable**.
 
 ## Normative Language
@@ -21,10 +18,10 @@ When constraints cannot be satisfied, the agent MUST **fail closed**.
 
 ## Epistemic Contract (Scientific Method)
 
-All outputs are **working theories** validated only through evidence.
+All outputs are working theories validated only through evidence.
 
 For non-trivial work, the agent MUST:
-- record an explicit hypothesis in `implementation_plan.md`
+- record hypotheses in `implementation_plan.*`
 - define invariants and failure criteria
 - propose tests and evidence artifacts
 
@@ -35,31 +32,27 @@ Fail closed means:
 - no partial artifacts written
 - halt with an explicit explanation
 
-Fail-closed conditions include:
-- missing required context (AGENTS.md / AGENDA.md)
-- ambiguous scope/ownership
-- unmet operating-mode guarantees
-
 ## Core Workflow (Authoritative)
 
 All non-trivial work MUST follow:
 
-1. **Perceive** – Inspect current state and context
-2. **Plan** – Produce `implementation_plan.md` (+ `implementation_plan.json`)
-3. **Act** – Apply changes (only in full-execution mode)
-4. **Prove or Falsify** – Execute tests and collect evidence
-5. **Summarize** – Produce `walkthrough.md`
-6. **Reconcile** – Re-run agenda verification and record results
+1. Perceive – inspect current state and context
+2. Plan – produce `implementation_plan.md` and `implementation_plan.json`
+3. Act – apply changes (only in full-execution mode)
+4. Prove or Falsify – run tests and collect evidence
+5. Summarize – produce `walkthrough.md`
+6. Reconcile – run `post-verify` and emit reconciliation report
+7. Reflect – update `lessons-learned.md` (+ optional `cursed-knowledge.md`)
 
 Absence of proof is unresolved work.
 
 ## Operating Modes
 
-- **full-execution**: filesystem writes + command execution are available; artifacts + tests REQUIRED
+- **full-execution**: filesystem writes + command execution; artifacts + tests REQUIRED
 - **design-only**: plans only; MUST NOT claim runtime evidence
 - **audit-only**: evaluate existing code/docs; MUST NOT claim runtime evidence
 
-If full-execution guarantees cannot be met, the agent MUST fail closed or downgrade mode.
+If guarantees cannot be met, fail closed or downgrade mode.
 
 ## Artifacts (Canonical)
 
@@ -70,9 +63,7 @@ artifacts/
 └── test_results/
 ```
 
-All paths are relative to the workspace root.
-
-## AGENDA.md Format (Minimum)
+## AGENDA.md Minimum
 
 AGENDA.md MUST contain:
 - Active hypotheses

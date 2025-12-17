@@ -11,30 +11,28 @@ def die(msg: str) -> int:
   return 1
 
 def main() -> int:
-  path = Path("AGENDA.md")
-  if not path.exists():
+  p = Path("AGENDA.md")
+  if not p.exists():
     return die("AGENDA.md not found")
-
-  text = path.read_text(encoding="utf-8")
+  txt = p.read_text(encoding="utf-8")
 
   for h in REQUIRED_HEADINGS:
-    if h not in text:
+    if h not in txt:
       return die(f"missing required heading: {h}")
 
-  statuses = re.findall(r"^\\s*Status:\\s*([A-Za-z\\-]+)\\s*$", text, flags=re.MULTILINE)
+  statuses = re.findall(r"^\\s*Status:\\s*([A-Za-z\\-]+)\\s*$", txt, flags=re.MULTILINE)
   if not statuses:
-    return die("no agenda item statuses found (expected 'Status: not-started')")
-
+    return die("no agenda item statuses found")
   bad = sorted({s for s in statuses if s not in VALID_STATUSES})
   if bad:
     return die(f"invalid status values: {', '.join(bad)}")
 
-  blocks = re.split(r"\\n\\s*\\n", text)
+  blocks = re.split(r"\\n\\s*\\n", txt)
   for b in blocks:
     if re.search(r"^\\s*Status:\\s*finished\\s*$", b, flags=re.MULTILINE):
       m = re.search(r"^\\s*Evidence:\\s*(.+)\\s*$", b, flags=re.MULTILINE)
       if not m or not m.group(1).strip():
-        return die("an item marked finished is missing non-empty Evidence:")
+        return die("finished item missing non-empty Evidence:")
 
   print("agenda_lint: OK")
   return 0

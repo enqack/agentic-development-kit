@@ -10,7 +10,7 @@ artifacts_required:
 
 Outputs:
 - `implementation_plan.md` (human-readable)
-- `implementation_plan.json` (machine-checkable; schema: `tools/plan_schema.json`)
+- `implementation_plan.json` (schema: `tools/plan_schema.json`)
 
 The plan MUST include:
 - hypotheses (stable IDs)

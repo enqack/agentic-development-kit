@@ -16,8 +16,8 @@ jobs:
           python-version: "3.11"
       - name: Agenda lint
         run: python3 tools/agenda_lint.py
-      - name: Gate plan + walkthrough + post-verify on code changes
-        run: tools/require_plan_and_walkthrough_if_code_changed.sh
+      - name: Gate evidence on code changes
+        run: tools/require_plan_walkthrough_postverify_lessons_if_code_changed.sh
       - name: Plan lint (when present)
         run: |
           if [ -f implementation_plan.json ]; then
@@ -31,4 +31,11 @@ jobs:
             python3 tools/post_verify_lint.py
           else
             echo "post_verify_report not present; skipping post-verify lint"
+          fi
+      - name: Lessons lint (when present)
+        run: |
+          if [ -f lessons-learned.md ]; then
+            python3 tools/lessons_lint.py
+          else
+            echo "lessons-learned.md not present; skipping lessons lint"
           fi

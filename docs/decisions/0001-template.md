@@ -4,4 +4,4 @@
 Accepted
 
 ## Decision
-Adopt verify -> plan -> execute -> summarize -> post-verify with schema-checked plans.
+Adopt verify -> plan -> execute -> summarize -> post-verify -> post-execution-review.
