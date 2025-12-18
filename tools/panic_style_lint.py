@@ -12,6 +12,11 @@ BANNED = [
   r"\bskip (the )?check\b",
   r"\bwhich would you prefer\b",
   r"\boptions:\b",
+  # Ignore semantics: these phrases indicate treating ignore rules as permissions.
+  r"\boverride.*gitignore\b",
+  r"\bblocked by gitignore\b",
+  r"\bgitignore.*block\b",
+  r"\bask.*override.*gitignore\b",
 ]
 
 def die(msg: str) -> int:
@@ -33,7 +38,6 @@ def main() -> int:
         bad.append(f"{p.as_posix()} contains banned phrase matching /{pat}/")
         break
 
-    # For workflows (except establish-intent), ensure canonical intent question appears if they declare a precondition block.
     if p.name != "establish-intent.md":
       if "Precondition:" in txt and "establish-intent" in txt:
         if CANON_Q not in txt:

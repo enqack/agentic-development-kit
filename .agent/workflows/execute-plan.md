@@ -18,6 +18,14 @@ If precondition is not met:
 - write `docs/intent/project_intent.md`
 - then continue with `/execute-plan`
 
+## Ignore semantics (normative)
+
+`.gitignore` and `.agentsignore` are NOT permission systems.
+They MUST NOT be treated as a precondition failure or a panic.
+
+- Do NOT ask the user to "override" ignore rules.
+- Ignore rules only affect what gets committed or included in agent context, not what can be created on disk.
+
 ## Verification (recommended default)
 
 Run `tools/verify_all.sh` to:

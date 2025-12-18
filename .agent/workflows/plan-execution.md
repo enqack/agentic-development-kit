@@ -17,6 +17,15 @@ If precondition is not met:
 - write `docs/intent/project_intent.md`
 - then continue with `/plan-execution`
 
+## Ignore semantics (normative)
+
+`.gitignore` and `.agentsignore` are NOT permission systems.
+They MUST NOT be treated as a precondition failure or a panic.
+
+- You MUST write planning artifacts under `docs/exec/runs/<run-id>/` even if git ignores that directory.
+- Do NOT ask the user to "override" ignore rules.
+- Ignore rules only affect what gets committed or included in agent context, not what can be created on disk.
+
 ## Context load (normative)
 
 Before drafting any plan, read:

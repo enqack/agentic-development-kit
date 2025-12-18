@@ -16,6 +16,13 @@ This creates `docs/intent/project_intent.md`, which is required before planning 
 
 If you invoke a workflow that requires intent (e.g., `/plan-execution`) before intent exists, the agent MUST fail closed and immediately ask the canonical intent question, write the intent file, and then resume the requested workflow. No override prompts.
 
+## Ignore semantics
+
+`.gitignore` and `.agentsignore` are NOT permission systems. They do not block file creation.
+
+- Planning artifacts MUST be written under `docs/exec/runs/<run-id>/` even though that directory is typically gitignored.
+- Agents MUST NOT ask the user to "override gitignore" to create run artifacts.
+
 ## Verification runtime
 
 ```sh
