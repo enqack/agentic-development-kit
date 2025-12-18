@@ -1,0 +1,47 @@
+{
+    "meta": {
+        "version": "1.0",
+        "generated_at": "2025-12-18T22:38:00Z",
+        "operating_mode": "full-execution"
+    },
+    "items": [
+        {
+            "id": "HYP-0001",
+            "status": "finished",
+            "hypothesis": "Implementing a ledger improves auditability.",
+            "scope": {
+                "components": [
+                    "tools",
+                    "docs"
+                ],
+                "files": [
+                    "tools/cvr/log_action.py",
+                    "AGENTS.md"
+                ]
+            },
+            "invariants": [
+                "Ledger must be append-only"
+            ],
+            "tasks": [
+                {
+                    "step": 1,
+                    "description": "Implement log_action.py",
+                    "done_definition": "Tool exists and runs"
+                }
+            ],
+            "tests": {
+                "unit": [
+                    "tools/cvr/log_action.py"
+                ],
+                "integration": [],
+                "build": []
+            },
+            "evidence": {
+                "required_artifacts": [
+                    "artifacts/agent_activity.jsonl"
+                ],
+                "notes": "Verified manually"
+            }
+        }
+    ]
+}

@@ -8,6 +8,7 @@
 - [x] Implement Activity Ledger (Ecosystem-wide)
 - [x] Refine Ledger Schema
 - [x] Fix CI (lessons-learned.md)
+- [x] Fix CI (run_artifacts_lint)
 
 ## Items still open
 
@@ -20,3 +21,4 @@
 - AGENTS.md
 - walkthrough.md
 - artifacts/history/lessons-learned.md
+- artifacts/history/runs/run-20251218-ledger-rollout/implementation_plan.json
