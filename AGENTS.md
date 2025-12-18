@@ -121,6 +121,17 @@ Absence of proof is unresolved work.
 
 ---
 
+## Diagnostic Protocol
+
+When encountering linter errors:
+
+* You **MUST NOT** consult the linter's implementation source code (e.g., `grep` the linter script) to understand the error.
+* You **MUST** consult the **Diagnostic Knowledge Base** (`tools/linters/rules.json`) via `tools/linters/diagnostic_db.py` or by reading the schema directly.
+* If a rule is found, you **MUST** apply the `fix.strategy` defined in the schema.
+* If no rule is found, you **MAY** consult official documentation or local style guides, but you **SHOULD** also propose adding the new rule to the schema for future determinism.
+
+---
+
 ## Agent Operating Modes
 
 * **full‑execution**: All artifacts and tests REQUIRED.

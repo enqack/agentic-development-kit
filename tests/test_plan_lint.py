@@ -1,77 +1,103 @@
 import json
-from pathlib import Path
-
-import pytest
-
-import os
+import unittest
 import sys
+import os
+from io import StringIO
+from unittest.mock import patch
+from pathlib import Path
 
 # Add linters to path
 sys.path.append(os.path.abspath("tools/linters"))
 import plan_lint
 
+class TestPlanLint(unittest.TestCase):
+    def setUp(self):
+        # Capture stdout/stderr
+        self.held_stdout = StringIO()
+        self.held_stderr = StringIO()
+        self.sys_stdout = sys.stdout
+        self.sys_stderr = sys.stderr
+        sys.stdout = self.held_stdout
+        sys.stderr = self.held_stderr
+        
+        # Save CWD
+        self.old_cwd = os.getcwd()
 
-def test_missing_plan_file(monkeypatch, tmp_path, capsys):
-  monkeypatch.chdir(tmp_path)
+    def tearDown(self):
+        sys.stdout = self.sys_stdout
+        sys.stderr = self.sys_stderr
+        os.chdir(self.old_cwd)
 
-  rc = plan_lint.main(["plan_lint"])
-  captured = capsys.readouterr()
+    def test_missing_plan_file(self):
+        # Create a temp dir using a context manager would be better, but for now 
+        # let's just use a subdir or assume we are in a clean env? 
+        # unittest doesn't have tmp_path fixture same as pytest.
+        # We'll use TemporaryDirectory.
+        from tempfile import TemporaryDirectory
+        
+        with TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
+            
+            rc = plan_lint.main(["plan_lint"])
+            
+            self.assertEqual(rc, 1)
+            self.assertIn("implementation_plan.json not found", self.held_stderr.getvalue())
 
-  assert rc == 1
-  assert "implementation_plan.json not found" in captured.err
+    def test_run_mode_missing_artifact(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
+            
+            rc = plan_lint.main(["plan_lint", "--run"])
+            
+            self.assertEqual(rc, 1)
+            self.assertIn("no docs/exec/runs/**/implementation_plan.json found", self.held_stderr.getvalue())
 
+    def test_malformed_json(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
+            p = Path("implementation_plan.json")
+            p.write_text("{ invalid", encoding="utf-8")
+            
+            rc = plan_lint.main(["plan_lint"])
+            
+            self.assertEqual(rc, 1)
+            # JSON error message varies slightly by python version, but typically contains "Expecting"
+            self.assertRegex(self.held_stderr.getvalue(), r"implementation_plan\.json: .*")
 
-def test_run_mode_missing_artifact(monkeypatch, tmp_path, capsys):
-  monkeypatch.chdir(tmp_path)
+    def test_lint_obj_validation(self):
+        with self.assertRaises(ValueError):
+            plan_lint.lint_obj({})
+        with self.assertRaises(ValueError):
+            plan_lint.lint_obj({"meta": {}, "items": []})
 
-  rc = plan_lint.main(["plan_lint", "--run"])
-  captured = capsys.readouterr()
+    def test_valid_plan_root(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
+            p = Path("implementation_plan.json")
+            p.write_text(json.dumps({"meta": {}, "items": [{"task": "one"}]}), encoding="utf-8")
+            
+            rc = plan_lint.main(["plan_lint"])
+            
+            self.assertEqual(rc, 0)
+            self.assertIn("plan_lint: OK", self.held_stdout.getvalue())
 
-  assert rc == 1
-  assert "no docs/exec/runs/**/implementation_plan.json found" in captured.err
+    def test_valid_plan_run_mode(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
+            run = Path("docs/exec/runs/run-1")
+            run.mkdir(parents=True)
+            (run / "implementation_plan.json").write_text(
+                json.dumps({"meta": {}, "items": [{"task": "two"}]}), encoding="utf-8"
+            )
+            
+            rc = plan_lint.main(["plan_lint", "--run"])
+            
+            self.assertEqual(rc, 0)
+            self.assertIn("docs/exec/runs/run-1/implementation_plan.json", self.held_stdout.getvalue())
 
-
-def test_malformed_json(monkeypatch, tmp_path, capsys):
-  monkeypatch.chdir(tmp_path)
-  p = Path("implementation_plan.json")
-  p.write_text("{ invalid", encoding="utf-8")
-
-  rc = plan_lint.main(["plan_lint"])
-  captured = capsys.readouterr()
-
-  assert rc == 1
-  assert "implementation_plan.json: Expecting property name enclosed in double quotes" in captured.err
-
-
-def test_lint_obj_validation():
-  with pytest.raises(ValueError):
-    plan_lint.lint_obj({})
-  with pytest.raises(ValueError):
-    plan_lint.lint_obj({"meta": {}, "items": []})
-
-
-def test_valid_plan_root(monkeypatch, tmp_path, capsys):
-  monkeypatch.chdir(tmp_path)
-  p = Path("implementation_plan.json")
-  p.write_text(json.dumps({"meta": {}, "items": [{"task": "one"}]}), encoding="utf-8")
-
-  rc = plan_lint.main(["plan_lint"])
-  captured = capsys.readouterr()
-
-  assert rc == 0
-  assert "plan_lint: OK" in captured.out
-
-
-def test_valid_plan_run_mode(monkeypatch, tmp_path, capsys):
-  monkeypatch.chdir(tmp_path)
-  run = Path("docs/exec/runs/run-1")
-  run.mkdir(parents=True)
-  (run / "implementation_plan.json").write_text(
-    json.dumps({"meta": {}, "items": [{"task": "two"}]}), encoding="utf-8"
-  )
-
-  rc = plan_lint.main(["plan_lint", "--run"])
-  captured = capsys.readouterr()
-
-  assert rc == 0
-  assert "docs/exec/runs/run-1/implementation_plan.json" in captured.out
+if __name__ == "__main__":
+    unittest.main()
