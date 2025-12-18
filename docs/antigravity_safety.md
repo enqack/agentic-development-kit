@@ -79,7 +79,7 @@ For maximum safety:
 - Workspace access enabled
 - Non-workspace access disabled
 - Terminal auto-execution disabled
-- `.aiexclude` configured
+- `.aiexclude` configured (the template ships one that fences off `.agent/`, `tools/`, and run artifacts)
 - Human approval required for risky actions
 - Prefer container or VM execution
 

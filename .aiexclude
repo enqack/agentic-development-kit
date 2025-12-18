@@ -1,0 +1,18 @@
+# Antigravity IDE context filters
+#
+# Goal: keep template scaffolding read-only for the IDE's agent by default.
+# Remove lines intentionally when you need to evolve the template itself.
+
+# Core template workflows and guards
+.agent/**
+tools/**
+
+# Template baseline docs that should not be auto-edited
+docs/antigravity_safety.md
+docs/system_model.md
+docs/decisions/**
+
+# Run artifacts and intent state (data plane)
+docs/exec/**
+docs/intent/**
+artifacts/**
