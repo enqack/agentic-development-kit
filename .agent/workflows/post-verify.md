@@ -2,10 +2,19 @@
 description: Re-run agenda verification after execution and record reconciliation results
 operating_mode: audit-only
 artifacts_required:
+  - docs/intent/project_intent.md
   - artifacts/logs/post_verify_report.md
 ---
 
 # post-verify
+
+Precondition:
+- `docs/intent/project_intent.md` exists.
+
+If precondition is not met:
+- fail closed (panic) and immediately initiate `establish-intent` by asking the canonical intent question.
+- write `docs/intent/project_intent.md`
+- then continue with `/post-verify`
 
 After executing a plan, re-verify that `AGENDA.md` reflects reality.
 

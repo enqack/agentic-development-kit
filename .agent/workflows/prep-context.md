@@ -2,10 +2,19 @@
 description: Load and verify workspace context
 operating_mode: audit-only
 artifacts_required:
+  - docs/intent/project_intent.md
   - artifacts/logs/context_manifest.md
 ---
 
 # prep-context
+
+Precondition:
+- `docs/intent/project_intent.md` exists.
+
+If precondition is not met:
+- fail closed (panic) and immediately initiate `establish-intent` by asking the canonical intent question.
+- write `docs/intent/project_intent.md`
+- then continue with `/prep-context`
 
 ## Purpose
 

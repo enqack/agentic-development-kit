@@ -1,9 +1,19 @@
 ---
 description: Verify agenda items and classify completion status
 operating_mode: audit-only | design-only
+artifacts_required:
+  - docs/intent/project_intent.md
 ---
 
 # verify-agenda
+
+Precondition:
+- `docs/intent/project_intent.md` exists.
+
+If precondition is not met:
+- fail closed (panic) and immediately initiate `establish-intent` by asking the canonical intent question.
+- write `docs/intent/project_intent.md`
+- then continue with `/verify-agenda`
 
 Agenda items MUST be classified as one of:
 

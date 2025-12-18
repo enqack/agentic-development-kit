@@ -2,10 +2,19 @@
 description: Capture institutional memory from an executed plan
 operating_mode: audit-only
 artifacts_required:
+  - docs/intent/project_intent.md
   - docs/exec/lessons-learned.md
 ---
 
 # post-execution-review
+
+Precondition:
+- `docs/intent/project_intent.md` exists.
+
+If precondition is not met:
+- fail closed (panic) and immediately initiate `establish-intent` by asking the canonical intent question.
+- write `docs/intent/project_intent.md`
+- then continue with `/post-execution-review`
 
 Inputs:
 - `docs/exec/runs/<run-id>/walkthrough.md`
