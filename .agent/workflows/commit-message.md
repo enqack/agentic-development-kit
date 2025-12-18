@@ -1,52 +1,54 @@
 ---
-name: commit-message
-description: Generate a Conventional Commit message based on unstaged changes and then stage & commit.
+description: Generate a Conventional Commit message from changes since the last commit
+operating_mode: audit-only | design-only
+artifacts_required:
+  - docs/intent/project_intent.md
 ---
 
-# Commit Message Generator
+# commit-message
 
-Describe: A structured workflow that guides an agent to review the diff since the last commit, draft a Conventional Commit message, present it for approval, and then stage & commit.
+Precondition:
+- `docs/intent/project_intent.md` exists.
 
-## Commit Message Format
-Commit messages must follow the **Conventional Commits** format:
+If precondition is not met:
+- fail closed (panic) and immediately initiate `establish-intent` by asking:
+  - "What are you trying to produce in this repo (software, book, research notes, something else), and what does 'done' look like for the first milestone?"
+- write `docs/intent/project_intent.md`
+- then continue with this workflow
+
+## Commit message format (normative)
+
+Use **Conventional Commits**:
+
 ```
 <type>(<scope>): <short summary>
 
-<body — optional, detailed description>
-
-<footer — optional, e.g., issue references, breaking changes>
+<body>   # optional: why + what changed
+<footer> # optional: Fixes #123, BREAKING CHANGE: ...
 ```
-Types (examples): `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `chore`
+
+Allowed `type` values (preferred): `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `chore`, `build`, `ci`.
+
+Rules:
+- Summary line is imperative mood, <= ~72 chars, no trailing period.
+- `scope` is optional; use a short subsystem name if it clarifies impact.
+- If change is breaking, include `!` after type/scope (e.g., `feat(api)!:`) and add `BREAKING CHANGE:` in footer.
 
 ## Steps
 
-1. **Review Diff**
-   ```
-   Review all unstaged changes since the last commit and summarize the edits.
-   ```
+1. **Review diff since last commit**
+   - Read and summarize the workspace diff vs `HEAD`.
+   - Identify: user-facing behavior changes, refactors, tests/docs, build/CI, and any breaking changes.
 
-2. **Draft Header**
-   ```
-   Based on the diff summary, propose a Conventional Commit header:
-   <type>(<scope>): <short imperative summary>
-   ```
+2. **Propose message candidates**
+   - Produce 2–3 candidate commit messages (header + optional body/footer) matching the format above.
+   - Prefer the most semantically accurate `type`.
+   - If multiple concerns exist, choose the dominant one and mention secondary changes in the body.
 
-3. **Draft Body**
-   ```
-   Provide an optional body explaining why changes were made and any context.
-   ```
+3. **Approval gate**
+   - Present the top candidate as the default.
+   - Ask the user to approve or edit the message (no committing yet).
 
-4. **Draft Footer**
-   ```
-   Suggest an optional footer with references, tickets, or breaking changes.
-   ```
-
-5. **Present Draft**
-   ```
-   Display the full proposed commit message for user approval, editing, or rewrite.
-   ```
-
-6. **Stage & Commit**
-   ```
-   Stage modified files and commit using the approved message.
-   ```
+4. **Stage and commit (only after approval)**
+   - Stage the intended files.
+   - Commit using the approved message exactly.
