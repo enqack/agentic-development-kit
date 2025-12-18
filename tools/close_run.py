@@ -5,6 +5,8 @@ import datetime
 from pathlib import Path
 from typing import Optional
 
+from journal import JournalError, emit_journal
+
 def die(msg: str) -> int:
     print(f"close_run: ERROR: {msg}", file=sys.stderr)
     return 1
@@ -94,6 +96,17 @@ def main() -> int:
     # 1. Verify run integrity (basic check, rely on verify_all for details)
     if not (run_dir / "implementation_plan.md").exists():
         return die("missing implementation_plan.md")
+
+    note("Generating journal artifact for the run…")
+    try:
+        journal_path = emit_journal(run_dir)
+    except JournalError as exc:
+        return die(f"journal generation failed: {exc}")
+
+    if journal_path:
+        note(f"Journal written to {journal_path}")
+    else:
+        note("No journal entries produced (missing recognized artifacts)")
     
     # 2. Extract and promote lessons
     lessons = extract_lessons(run_dir)

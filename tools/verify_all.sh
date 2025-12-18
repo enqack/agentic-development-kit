@@ -58,6 +58,9 @@ fi
 if [ -f tools/linters/evidence_location_lint.py ]; then
   run_log "evidence_location_lint" python3 tools/linters/evidence_location_lint.py
 fi
+if [ -f tools/linters/journal_lint.py ]; then
+  run_log "journal_lint" python3 tools/linters/journal_lint.py
+fi
 if [ -f tools/linters/content_lint.py ]; then
   run_log "content_lint" python3 tools/linters/content_lint.py
 fi

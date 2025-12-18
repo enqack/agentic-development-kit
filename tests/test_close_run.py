@@ -120,7 +120,40 @@ class TestCloseRun(unittest.TestCase):
 
         self.assertEqual(closure["final_status"], "closed")
         self.assertIsNotNone(datetime.datetime.fromisoformat(closure["closed_at"]).tzinfo)
-        self.assertIn("Run run-456 closed successfully.", stdout.getvalue())
+        output = stdout.getvalue()
+        self.assertIn("Generating journal artifact for the run", output)
+        self.assertIn("No journal entries produced (missing recognized artifacts)", output)
+        self.assertIn("Run run-456 closed successfully.", output)
+
+    def test_main_generates_journal(self):
+        run_dir = Path("docs/exec/runs/run-789")
+        run_dir.mkdir(parents=True)
+        (run_dir / "implementation_plan.md").write_text("# plan", encoding="utf-8")
+        (run_dir / "implementation_plan.json").write_text(
+            json.dumps({
+                "items": [
+                    {"id": "B", "hypothesis": "Hyp B", "status": "done", "evidence": {"required_artifacts": ["b.md", "a.md"]}},
+                    {"id": "A", "hypothesis": "Hyp A"},
+                ]
+            }),
+            encoding="utf-8",
+        )
+        (run_dir / "walkthrough.md").write_text("# Walkthrough\n\n## Lessons Learned\n- Learned A\n- Learned B\n", encoding="utf-8")
+
+        with patch.object(sys, "argv", ["close_run", "run-789"]):
+            stdout = StringIO()
+            stderr = StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                rc = main()
+
+        self.assertEqual(rc, 0)
+        journal_path = run_dir / "journal.json"
+        self.assertTrue(journal_path.exists())
+        journal = json.loads(journal_path.read_text())
+        self.assertEqual(journal.get("run"), "run-789")
+        self.assertEqual([item["id"] for item in journal["artifacts"]["implementation_plan"]["items"]], ["A", "B"])
+        self.assertEqual(journal["artifacts"]["walkthrough"]["lessons"], ["Learned A", "Learned B"])
+        self.assertIn("Journal written to", stdout.getvalue())
 
 if __name__ == "__main__":
     unittest.main()
