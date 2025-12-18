@@ -38,23 +38,100 @@ The following paths are **off-limits** for all agent modifications:
 
 - `tools/cvr/**` (Canonical Verification Runtime substrate)
 - `tools/verify_all.sh` (Verification orchestrator bridge)
-- `.agent/workflows/**` (workflow definitions)
+- `.agent/workflows/**` (Workflow definitions)
 
 **Rationale**: The Runtime is the supervision kernel. Modifying it while executing under its supervision creates circular dependencies and undermines determinism.
 
-**Operating Mode Exception**: Agents in `maintenance` mode MAY modify Runtime components, but MUST follow the full scientific method (hypotheses, experiments, evidence).
+### Escalation Protocol (Runtime Issues)
 
-...
+If the Verification Runtime has bugs, defects, or missing features:
+
+1. **STOP** – Do not attempt to fix or work around the issue.
+2. **NOTIFY** – Alert the operator with:
+   - Exact error or limitation encountered
+   - Affected Runtime component (file path)
+   - Suggested fix or feature request
+3. **DEFER** – The operator will either:
+   - Fix the Runtime themselves
+   - Escalate to the ADK maintainer
+   - Grant temporary `maintenance` mode access (see Operating Modes)
+
+______________________________________________________________________
+
+## Normative Language
+
+- **MUST / MUST NOT** – absolute requirements
+- **SHOULD / SHOULD NOT** – strong defaults; deviation requires justification and recorded rationale
+- **MAY** – optional behavior
+
+When constraints cannot be satisfied, the agent MUST **fail closed**.
+
+______________________________________________________________________
 
 ## Terminology Glossary
 
 - **Run**: A discrete unit of work with a unique ID (e.g., `2025-12-18_fix-login`).
-- **Artifact**: Durable output used as evidence `artifacts/history/runs/<run-id>/`.
+- **Workspace**: A single Git repository opened within a project context, containing its own `AGENTS.md` and `AGENDA.md`.
+- **Artifact**: Any durable output used as evidence.
+- **Non-trivial work**: Any task that changes system behavior, contracts, architecture, or failure modes.
 - **Intent**: The top-level definition of "done", stored in `artifacts/intent/project_intent.md`.
-- **Journal**: A theatrical, deterministic summary of a Run.
+- **Journal**: A deterministic narrative summary of a Run.
 - **History**: The immutable sequence of all Runs and their metadata.
 
-...
+Examples of non-trivial work:
+
+- Modifying lifecycle state machines
+- Changing verification semantics
+- Refactoring supervision logic
+- Introducing or altering persistent artifacts
+- Changing interfaces (`tools/test.sh`, CLI contracts, artifact schemas)
+
+______________________________________________________________________
+
+## Epistemic Contract (Scientific Method)
+
+The agent operates as a **scientific investigator of systems**.
+
+All outputs are treated as **working theories**, validated only through evidence.
+
+### Hypotheses
+
+Every non-trivial action MUST be grounded in an explicit hypothesis recorded in the Run's `implementation_plan.md`.
+
+Unstated assumptions are defects.
+
+### Experiments
+
+All code or configuration changes are experiments.
+
+Each experiment SHOULD define:
+
+- Independent variables (what you change)
+- Dependent variables (what you measure)
+- Invariants (what must not change)
+- Failure criteria (what proves the hypothesis wrong)
+
+### Evidence
+
+Assertions without artifacts are invalid.
+
+Valid evidence includes tests, logs, linter output, and reproducible procedures.
+
+Ambiguity MUST be stated explicitly.
+
+### Falsification
+
+Invalidating an assumption is success.
+
+Failed experiments SHOULD be preserved and analyzed (in the Run's artifacts).
+
+### Determinism
+
+- Experiments SHOULD be repeatable
+- Non-determinism MUST be identified and bounded
+- Flaky behavior is a defect
+
+______________________________________________________________________
 
 ## Fail‑Closed Semantics (Operational Definition)
 
@@ -62,25 +139,27 @@ The following paths are **off-limits** for all agent modifications:
 
 - No code or configuration is modified
 - No artifacts are partially written
-- Execution halts with an explicit explanation
+- No ledger entries are emitted
+- Execution halts with an explicit explanation of the violated constraint
 
-Fail‑closed conditions include:
+Fail-closed conditions include:
 
-- Missing `artifacts/intent/project_intent.md` when required
+- Missing required artifacts or context (for example, missing `artifacts/intent/project_intent.md` when required)
 - Inability to pass `tools/verify_all.sh` BEFORE starting a run (clean state check)
-- Ambiguous or missing `AGENDA.md` items
+- Ambiguous workspace boundaries
+- Inability to write mandated logs, mirrors, or ledgers
 
-...
+______________________________________________________________________
 
 ## Core Workflow (Authoritative)
 
-All non‑trivial work MUST follow this loop:
+All non-trivial work MUST follow this loop:
 
 1. **Perceive** – Inspect current state and context
-1. **Plan** – Produce `artifacts/history/runs/<run-id>/implementation_plan.md`
-1. **Act** – Apply changes
-1. **Prove or Falsify** – Execute `tools/verify_all.sh`
-1. **Summarize** – Close the run to generate `artifacts/journal/<run-id>.md`
+2. **Plan** – Produce `artifacts/history/runs/<run-id>/implementation_plan.md`
+3. **Act** – Apply changes (only in `full-execution` mode)
+4. **Prove or Falsify** – Execute `tools/verify_all.sh`
+5. **Summarize** – Close the run to generate `artifacts/journal/<run-id>.md`
 
 Absence of proof is unresolved work.
 
@@ -88,12 +167,13 @@ ______________________________________________________________________
 
 ## Diagnostic Protocol
 
-When encountering linter errors:
+When encountering verification or linter errors:
 
-- You **MUST NOT** consult the linter's implementation source code (e.g., `grep` the linter script) to understand the error.
-- You **MUST** consult the **Diagnostic Knowledge Base** (`tools/linters/rules.json`) via `tools/linters/diagnostic_db.py` or by reading the schema directly.
+- You **MUST NOT** consult the verification or linter *implementation source code* (e.g., `grep` the linter script) to understand the error.
+- You **MUST** consult the **Diagnostic Knowledge Base** (`tools/cvr/linters/rules.json`) via `tools/cvr/linters/diagnostic_db.py` or by reading the schema directly.
 - If a rule is found, you **MUST** apply the `fix.strategy` defined in the schema.
-- If no rule is found, you **MAY** consult official documentation or local style guides, but you **SHOULD** also propose adding the new rule to the schema for future determinism.
+- If no rule is found, you **MAY** consult official documentation or local style guides, but you **SHOULD** propose adding the new rule to the schema for future determinism.
+- If a verification check fails repeatedly, you **MUST** notify the operator rather than attempting workarounds.
 
 ______________________________________________________________________
 
@@ -104,31 +184,57 @@ To ensure consistent and valid documentation artifacts:
 - **Always use fenced code blocks** with explicit language identifiers (e.g., `bash`, `python`).
 - **Ensure blank lines** exist before and after every fenced code block.
 - **Lists formatting**: Use 2-space indentation for nested items; do not mix `-` and `*`.
+- **Code references**: Wrap file paths, function names, and commands in backticks.
+- **Headings**: Use ATX-style (`#`) not Setext-style (underlines).
 - **Formatting enforcement**:
-  - You MUST run `python3 tools/format_md.py` before finalizing any markdown content.
+  - You MUST run `python3 tools/cvr/format_md.py` before finalizing any markdown content.
   - You MUST verify the integrity of the environment via `tools/check_tools.sh` if formatting fails.
 
 ______________________________________________________________________
 
 ## Agent Operating Modes
 
-- **full‑execution**: All artifacts and tests REQUIRED.
-- **design‑only**: Plans and hypotheses only.
-- **maintenance**: Refactoring Runtime tools.
+- **full-execution**: All artifacts and tests REQUIRED.
+- **design-only**: Plans and hypotheses only; no code/config changes.
+- **audit-only**: Findings without execution; no code/config changes.
+- **maintenance**: Runtime modification allowed (requires explicit operator grant).
+
+### Mode Transitions (Normative)
+
+- Agents MUST NOT self-promote to `maintenance` mode.
+- The operator grants `maintenance` mode explicitly for Runtime fixes.
+- If `full-execution` guarantees cannot be met, the agent MUST fail closed or downgrade to `design-only` / `audit-only`.
 
 ______________________________________________________________________
 
 ## Artifact Directory Structure (Canonical)
 
+All paths are relative to the workspace root.
+
 ```
 artifacts/
-├── journal/         # Narrative summaries
-├── logs/            # Raw execution logs
-├── diffs/           # Code changes
-└── test_results/    # Evidence
+├── agent_activity.jsonl
+├── intent/
+│   └── project_intent.md
+├── history/
+│   ├── history.md
+│   └── runs/
+│       └── <run-id>/
+│           ├── implementation_plan.md
+│           ├── diffs/
+│           ├── logs/
+│           └── test_results/
+├── journal/
+│   └── <run-id>.md
+├── diffs/
+├── logs/
+└── test_results/
 ```
 
-All paths are relative to the workspace root.
+Notes:
+
+- `history/` is the immutable run lineage and metadata spine.
+- Top-level `diffs/`, `logs/`, and `test_results/` MAY be used for shared or ad-hoc evidence, but Runs SHOULD record evidence under `history/runs/<run-id>/` for traceability.
 
 ______________________________________________________________________
 
