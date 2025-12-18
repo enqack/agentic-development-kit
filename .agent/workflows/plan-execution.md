@@ -18,6 +18,19 @@ If precondition is not met:
 - write `docs/intent/project_intent.md`
 - then continue with the requested workflow
 
+## Prerequisites (conditional)
+
+Before drafting any plan, ensure context is loaded and agenda is verified:
+
+1. **Context Manifest**:
+   - Check if `artifacts/logs/context_manifest.md` exists.
+   - If MISSING, run `prep-context` workflow.
+
+2. **Agenda Verification**:
+   - Check if `artifacts/logs/post_verify_report.md` exists and is fresher than the latest `AGENDA.md` edit (heuristic).
+   - If in doubt, or if never run for this session, run `verify-agenda` workflow.
+
+
 ## Ignore semantics (normative)
 
 `.gitignore` and `.agentsignore` are NOT permission systems.

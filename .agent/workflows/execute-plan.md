@@ -34,3 +34,16 @@ Run `tools/verify_all.sh` to:
 - execute lints
 - run project tests via `tools/test.sh` (language-agnostic hook)
 - capture outputs under `artifacts/logs/*.log` and `artifacts/test_results/*`
+
+## After completion (normative)
+
+The agent MUST NOT consider `execute-plan` finished until the feedback loop is closed.
+
+1. **Agenda Reconciliation**:
+   - Run `post-verify` workflow.
+   - This generates `artifacts/logs/post_verify_report.md`.
+
+2. **Institutional Memory**:
+   - Run `post-execution-review` workflow.
+   - This ensures lessons are captured in `docs/exec/lessons-learned.md`.
+
