@@ -14,7 +14,8 @@ Precondition:
 - `docs/intent/project_intent.md` exists and reflects the repo's purpose.
 
 If precondition is not met:
-- fail closed (panic) and immediately initiate `establish-intent` by asking the canonical intent question.
+- fail closed (panic) and immediately initiate `establish-intent` by asking:
+  - "What are you trying to produce in this repo (software, book, research notes, something else), and what does 'done' look like for the first milestone?"
 - write `docs/intent/project_intent.md`
 - then continue with `/execute-plan`
 
@@ -23,7 +24,7 @@ If precondition is not met:
 `.gitignore` and `.agentsignore` are NOT permission systems.
 They MUST NOT be treated as a precondition failure or a panic.
 
-- Do NOT ask the user to "override" ignore rules.
+- Do NOT ask the user to bypass ignore rules.
 - Ignore rules only affect what gets committed or included in agent context, not what can be created on disk.
 
 ## Verification (recommended default)
