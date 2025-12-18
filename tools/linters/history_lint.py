@@ -14,10 +14,7 @@ import sys
 from pathlib import Path
 from typing import List, Set, Tuple
 
-
-# Allow reuse of lint_common validators without making tools a package.
-sys.path.append(str((Path(__file__).resolve().parent / "linters")))
-from lint_common import validate_paths  # type: ignore
+from lint_common import validate_paths
 
 
 HISTORY_DIR = Path("history")
@@ -39,9 +36,11 @@ def validate_evidence_paths(paths: object, ctx: str) -> List[str]:
     if not isinstance(p, str) or not p.strip():
       errors.append(format_error(f"{ctx} evidence entry {idx} must be a non-empty string"))
       continue
+
     path_error = validate_paths(p)
     if path_error:
       errors.append(format_error(f"{ctx} evidence entry {idx} {path_error}"))
+
     if Path(p).is_absolute():
       errors.append(format_error(f"{ctx} evidence entry {idx} must be repo-relative (not absolute)"))
     if p.startswith(".."):
@@ -129,6 +128,7 @@ def lint_agenda_state(path: Path, hist_hypotheses: Set[str], hist_agenda: Set[st
     if not isinstance(item, dict):
       errors.append(format_error(f"{ctx}: must be an object"))
       continue
+
     ag_id = item.get("id")
     if not isinstance(ag_id, str) or not AG_RE.fullmatch(ag_id):
       errors.append(format_error(f"{ctx}: id must match AG-######"))
@@ -156,6 +156,7 @@ def lint_agenda_state(path: Path, hist_hypotheses: Set[str], hist_agenda: Set[st
     if not isinstance(item, dict):
       errors.append(format_error(f"{ctx}: must be an object"))
       continue
+
     hyp_id = item.get("id")
     if not isinstance(hyp_id, str) or not HYP_RE.fullmatch(hyp_id):
       errors.append(format_error(f"{ctx}: id must match HYP-####"))
