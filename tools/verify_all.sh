@@ -47,7 +47,10 @@ if [ -f tools/lessons_lint.py ] && [ -f docs/exec/lessons-learned.md ]; then
   run_log "lessons_lint" python3 tools/lessons_lint.py
 fi
 if [ -f tools/walkthrough_lint.py ]; then
-  run_log "walkthrough_lint" python3 tools/walkthrough_lint.py
+  # Only run if a walkthrough exists (root or in runs/)
+  if [ -f walkthrough.md ] || find docs/exec/runs -name "walkthrough.md" -type f 2>/dev/null | grep -q .; then
+    run_log "walkthrough_lint" python3 tools/walkthrough_lint.py
+  fi
 fi
 if [ -f tools/run_artifacts_lint.py ] && [ -d docs/exec/runs ]; then
   run_log "run_artifacts_lint" python3 tools/run_artifacts_lint.py
