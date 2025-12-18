@@ -27,7 +27,7 @@ def test_no_runs_ok(monkeypatch, tmp_path, capsys):
 
 def test_runs_missing_required_files(monkeypatch, tmp_path, capsys):
   monkeypatch.chdir(tmp_path)
-  run_dir = Path("docs/exec/runs/run-1")
+  run_dir = Path("artifacts/history/runs/run-1")
   run_dir.mkdir(parents=True)
 
   rc = run_artifacts_lint.main()
@@ -39,7 +39,7 @@ def test_runs_missing_required_files(monkeypatch, tmp_path, capsys):
 
 def test_runs_with_required_files(monkeypatch, tmp_path, capsys):
   monkeypatch.chdir(tmp_path)
-  run_dir = Path("docs/exec/runs/run-2")
+  run_dir = Path("artifacts/history/runs/run-2")
   run_dir.mkdir(parents=True)
   (run_dir / "implementation_plan.json").write_text("{}", encoding="utf-8")
   (run_dir / "walkthrough.md").write_text("# Walkthrough", encoding="utf-8")

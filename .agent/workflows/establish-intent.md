@@ -2,7 +2,7 @@
 description: Establish project intent before planning or execution
 operating_mode: audit-only
 artifacts_required:
-  - docs/intent/project_intent.md
+  - artifacts/intent/project_intent.md
 ---
 
 # establish-intent
@@ -17,13 +17,13 @@ Prevent premature domain assumptions. Before any planning or execution, establis
 
    "What are you trying to produce in this repo (software, book, research notes, something else), and what does ‘done’ look like for the first milestone?"
 
-2. Write `docs/intent/project_intent.md` with the result using the schema below.
+2. Write `artifacts/intent/project_intent.md` with the result using the schema below.
 
 3. If the user refuses or is unsure, set `primary_domain: unknown` and proceed with minimal, non-domain-specific planning only.
 
 ## Schema (required)
 
-`docs/intent/project_intent.md` MUST contain YAML frontmatter with:
+`artifacts/intent/project_intent.md` MUST contain YAML frontmatter with:
 
 - `primary_domain`: one of `software`, `writing`, `research`, `art`, `mixed`, `unknown`
 - `deliverable`: short description of the end product

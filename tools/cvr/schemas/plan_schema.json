@@ -65,7 +65,8 @@
             "enum": [
               "proposed",
               "reopened",
-              "regression-only"
+              "regression-only",
+              "finished"
             ]
           },
           "hypothesis": {

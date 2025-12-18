@@ -34,7 +34,7 @@ def die(script_name: str, msg: str) -> int:
 
 
 def find_run_artifact(filename: str) -> Optional[Path]:
-  """Find a file under docs/exec/runs/ hierarchy.
+  """Find a file under artifacts/history/runs/ hierarchy.
   
   Args:
     filename: Name of the file to find
@@ -42,7 +42,7 @@ def find_run_artifact(filename: str) -> Optional[Path]:
   Returns:
     Path to the first matching file, or None if not found
   """
-  runs = Path("docs/exec/runs")
+  runs = Path("artifacts/history/runs")
   if not runs.exists():
     return None
   for p in runs.rglob(filename):

@@ -8,7 +8,7 @@ import journal  # noqa: E402
 
 
 def test_emit_journal_with_artifacts(tmp_path, capsys):
-    run_dir = tmp_path / "docs/exec/runs/run-1"
+    run_dir = tmp_path / "artifacts/history/runs/run-1"
     run_dir.mkdir(parents=True)
     (run_dir / "implementation_plan.json").write_text(
         json.dumps({
@@ -54,7 +54,7 @@ def test_emit_journal_with_artifacts(tmp_path, capsys):
 
 
 def test_emit_journal_missing_plan(tmp_path, capsys):
-    run_dir = tmp_path / "docs/exec/runs/run-2"
+    run_dir = tmp_path / "artifacts/history/runs/run-2"
     run_dir.mkdir(parents=True)
     # No artifacts
 
@@ -75,7 +75,7 @@ def test_emit_journal_missing_plan(tmp_path, capsys):
 
 def test_main_runs(tmp_path, capsys):
     # Setup standard layout
-    runs_dir = tmp_path / "docs/exec/runs"
+    runs_dir = tmp_path / "artifacts/history/runs"
     runs_dir.mkdir(parents=True)
     (runs_dir / "run-3").mkdir()
     

@@ -32,7 +32,7 @@ def test_compliant_workflows(monkeypatch, tmp_path, capsys):
   wf_dir.mkdir(parents=True)
   (wf_dir / "establish-intent.md").write_text("bootstrap", encoding="utf-8")
   (wf_dir / "work.md").write_text(
-    "Precondition: docs/intent/project_intent.md must exist", encoding="utf-8"
+    "Precondition: artifacts/intent/project_intent.md must exist", encoding="utf-8"
   )
 
   rc = workflow_intent_lint.main()

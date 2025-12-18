@@ -32,7 +32,7 @@ def test_valid_template(monkeypatch, tmp_path, capsys):
   Path("AGENTS.md").write_text("", encoding="utf-8")
   Path("AGENDA.md").write_text("", encoding="utf-8")
   Path(".agent").mkdir()
-  Path("docs/intent").mkdir(parents=True)
+  Path("artifacts/intent").mkdir(parents=True)
 
   rc = template_baseline_lint.main()
   captured = capsys.readouterr()

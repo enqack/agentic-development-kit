@@ -27,7 +27,7 @@
 **/*.zip
 
 # Verification Runtime (supervision kernel) - agents MUST NOT modify
-tools/**
+tools/cvr/**
 lib/**
 requirements-verify.txt
 .agent/workflows/**

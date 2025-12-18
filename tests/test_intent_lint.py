@@ -24,12 +24,12 @@ def test_missing_intent_file(monkeypatch, tmp_path, capsys):
   captured = capsys.readouterr()
 
   assert rc == 1
-  assert "missing docs/intent/project_intent.md" in captured.err
+  assert "missing artifacts/intent/project_intent.md" in captured.err
 
 
 def test_missing_frontmatter(monkeypatch, tmp_path, capsys):
   monkeypatch.chdir(tmp_path)
-  intent_path = Path("docs/intent")
+  intent_path = Path("artifacts/intent")
   intent_path.mkdir(parents=True)
   (intent_path / "project_intent.md").write_text("no frontmatter", encoding="utf-8")
 
@@ -42,7 +42,7 @@ def test_missing_frontmatter(monkeypatch, tmp_path, capsys):
 
 def test_missing_required_keys(monkeypatch, tmp_path, capsys):
   monkeypatch.chdir(tmp_path)
-  intent_path = Path("docs/intent")
+  intent_path = Path("artifacts/intent")
   intent_path.mkdir(parents=True)
   (intent_path / "project_intent.md").write_text(
     """---
@@ -63,7 +63,7 @@ body
 
 def test_invalid_primary_domain(monkeypatch, tmp_path, capsys):
   monkeypatch.chdir(tmp_path)
-  intent_path = Path("docs/intent")
+  intent_path = Path("artifacts/intent")
   intent_path.mkdir(parents=True)
   (intent_path / "project_intent.md").write_text(
     """---
@@ -86,7 +86,7 @@ non_goals: none
 
 def test_valid_intent(monkeypatch, tmp_path, capsys):
   monkeypatch.chdir(tmp_path)
-  intent_path = Path("docs/intent")
+  intent_path = Path("artifacts/intent")
   intent_path.mkdir(parents=True)
   (intent_path / "project_intent.md").write_text(
     """---

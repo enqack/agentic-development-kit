@@ -2,7 +2,7 @@
 description: Orchestrator for the standard planning and execution lifecycle
 operating_mode: audit-only | design-only
 artifacts_required:
-  - docs/intent/project_intent.md
+  - artifacts/intent/project_intent.md
 ---
 
 # plan-cycle

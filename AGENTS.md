@@ -36,90 +36,25 @@ The Runtime MUST make **no assumptions** about the User Project's language, fram
 
 The following paths are **off-limits** for all agent modifications:
 
-- `tools/**` (all verification scripts, linters, formatters)
-- `lib/**` (all shared Python modules)
-- `requirements-verify.txt` (Runtime dependencies)
+- `tools/cvr/**` (Canonical Verification Runtime substrate)
+- `tools/verify_all.sh` (Verification orchestrator bridge)
 - `.agent/workflows/**` (workflow definitions)
 
 **Rationale**: The Runtime is the supervision kernel. Modifying it while executing under its supervision creates circular dependencies and undermines determinism.
 
 **Operating Mode Exception**: Agents in `maintenance` mode MAY modify Runtime components, but MUST follow the full scientific method (hypotheses, experiments, evidence).
 
-**Escalation Protocol**:
-
-If the Verification Runtime has bugs, defects, or missing features:
-
-1. **STOP** – Do not attempt to fix or work around the issue.
-2. **NOTIFY** – Alert the operator with:
-   - Exact error or limitation encountered
-   - Affected Runtime component (file path)
-   - Suggested fix or feature request
-3. **DEFER** – The operator will either:
-   - Fix the Runtime themselves
-   - Escalate to the ADK maintainer
-   - Grant temporary `maintenance` mode access
-
-
-______________________________________________________________________
-
-## Normative Language
-
-- **MUST / MUST NOT** – absolute requirements
-- **SHOULD / SHOULD NOT** – strong defaults; deviation requires justification
-- **MAY** – optional behavior
-
-When constraints cannot be satisfied, the agent MUST **fail closed**.
-
-______________________________________________________________________
+...
 
 ## Terminology Glossary
 
 - **Run**: A discrete unit of work with a unique ID (e.g., `2025-12-18_fix-login`).
-- **Artifact**: Durable output used as evidence `docs/exec/runs/<run-id>/`.
-- **Intent**: The top-level definition of "done", stored in `docs/intent/project_intent.md`.
+- **Artifact**: Durable output used as evidence `artifacts/history/runs/<run-id>/`.
+- **Intent**: The top-level definition of "done", stored in `artifacts/intent/project_intent.md`.
 - **Journal**: A theatrical, deterministic summary of a Run.
 - **History**: The immutable sequence of all Runs and their metadata.
 
-______________________________________________________________________
-
-## Epistemic Contract (Scientific Method)
-
-The agent operates as a **scientific investigator of systems**.
-
-All outputs are treated as **working theories**, validated only through evidence.
-
-### Hypotheses
-
-Every non‑trivial action MUST be grounded in an explicit hypothesis recorded in `implementation_plan.md`.
-
-Unstated assumptions are defects.
-
-### Experiments
-
-All code or configuration changes are experiments.
-
-Each experiment MUST define:
-
-- Independent variables (Changes applied)
-- Dependent variables (Metrics/Tests observed)
-- Invariants (What must NOT change)
-- Failure criteria
-
-### Evidence
-
-Assertions without artifacts are invalid.
-
-Valid evidence includes tests, logs, metrics, and reproducible procedures.
-
-Ambiguity MUST be stated explicitly.
-
-### Falsification
-
-Invalidating an assumption is success.
-
-Failed experiments MUST be preserved and analyzed.
-
-______________________________________________________________________
+...
 
 ## Fail‑Closed Semantics (Operational Definition)
 
@@ -131,18 +66,18 @@ ______________________________________________________________________
 
 Fail‑closed conditions include:
 
-- Missing `docs/intent/project_intent.md` when required
+- Missing `artifacts/intent/project_intent.md` when required
 - Inability to pass `tools/verify_all.sh` BEFORE starting a run (clean state check)
 - Ambiguous or missing `AGENDA.md` items
 
-______________________________________________________________________
+...
 
 ## Core Workflow (Authoritative)
 
 All non‑trivial work MUST follow this loop:
 
 1. **Perceive** – Inspect current state and context
-1. **Plan** – Produce `docs/exec/runs/<run-id>/implementation_plan.md`
+1. **Plan** – Produce `artifacts/history/runs/<run-id>/implementation_plan.md`
 1. **Act** – Apply changes
 1. **Prove or Falsify** – Execute `tools/verify_all.sh`
 1. **Summarize** – Close the run to generate `artifacts/journal/<run-id>.md`

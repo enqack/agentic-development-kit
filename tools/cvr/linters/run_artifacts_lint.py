@@ -20,7 +20,7 @@ def main() -> int:
     return die("run_artifacts_lint", "root contains forbidden execution artifacts: " + ", ".join(sorted(set(bad))))
 
   # Check if there are any run directories
-  runs_dir = Path("docs/exec/runs")
+  runs_dir = Path("artifacts/history/runs")
   has_runs = False
   if runs_dir.exists():
     for child in runs_dir.iterdir():
@@ -37,9 +37,9 @@ def main() -> int:
   plan = find_run_artifact("implementation_plan.json")
   w = find_run_artifact("walkthrough.md")
   if plan is None:
-    return die("run_artifacts_lint", "runs exist but no docs/exec/runs/**/implementation_plan.json found")
+    return die("run_artifacts_lint", "runs exist but no artifacts/history/runs/**/implementation_plan.json found")
   if w is None:
-    return die("run_artifacts_lint", "runs exist but no docs/exec/runs/**/walkthrough.md found")
+    return die("run_artifacts_lint", "runs exist but no artifacts/history/runs/**/walkthrough.md found")
 
 
 

@@ -14,11 +14,11 @@ def find_walkthrough() -> Path | None:
 def main() -> int:
   p = find_walkthrough()
   if p is None:
-    return die("walkthrough_lint", "no walkthrough.md found (expected docs/exec/runs/**/walkthrough.md)")
+    return die("walkthrough_lint", "no walkthrough.md found (expected artifacts/history/runs/**/walkthrough.md)")
 
   # Root walkthrough is forbidden by v5.3, but we keep a specific message here.
   if p.resolve().name == "walkthrough.md" and p.parent.resolve() == Path(".").resolve():
-    return die("walkthrough_lint", "walkthrough.md is at repo root; must be under docs/exec/runs/<run-id>/")
+    return die("walkthrough_lint", "walkthrough.md is at repo root; must be under artifacts/history/runs/<run-id>/")
 
   txt = p.read_text(encoding="utf-8")
 

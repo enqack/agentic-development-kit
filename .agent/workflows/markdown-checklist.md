@@ -7,7 +7,7 @@ description: Verify Markdown structure and quality
 Run this workflow when creating or modifying significant Markdown documentation.
 
 ## Precondition
-- `docs/intent/project_intent.md` exists.
+- `artifacts/intent/project_intent.md` exists.
 
 ## Steps
 

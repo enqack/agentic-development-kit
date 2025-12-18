@@ -48,7 +48,7 @@ def check_word_count(path: Path, text: str) -> List[str]:
     return errors
 
 def main() -> int:
-    # Scan for relevant markdown files in current dir and docs/exec/runs
+    # Scan for relevant markdown files in current dir and artifacts/history/runs
     files_to_check = []
     
     # Check root artifacts if they exist
@@ -58,8 +58,8 @@ def main() -> int:
             files_to_check.append(p)
             
     # Check artifacts in runs
-    if Path("docs/exec/runs").exists():
-        for run_dir in Path("docs/exec/runs").iterdir():
+    if Path("artifacts/history/runs").exists():
+        for run_dir in Path("artifacts/history/runs").iterdir():
             if run_dir.is_dir():
                 for name in MIN_WORDS.keys():
                     p = run_dir / name

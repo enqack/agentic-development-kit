@@ -17,9 +17,9 @@ def strip_backtick_content(text: str) -> str:
 
 
 def main() -> int:
-  p = Path("docs/exec/lessons-learned.md")
+  p = Path("artifacts/history/lessons-learned.md")
   if not p.exists():
-    return die("lessons_lint", "docs/exec/lessons-learned.md missing")
+    return die("lessons_lint", "artifacts/history/lessons-learned.md missing")
 
   txt = p.read_text(encoding="utf-8")
 

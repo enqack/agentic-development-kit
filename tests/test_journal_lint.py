@@ -75,7 +75,7 @@ def test_valid_journal(monkeypatch, tmp_path, capsys):
     _write_journal(
         tmp_path,
         f"{journal_lint.HEADER_REQ}\n"
-        f"I thought about docs/exec/plan.md\n"
+        f"I thought about artifacts/history/plan.md\n"
         f"\n---\n{journal_lint.DISCLAIMER_REQ}\n"
     )
 

@@ -1,13 +1,16 @@
 # Agenda
 
+**Status**: Active
+
 ## Active Hypotheses
-- [ ] ID: HYP-0001
-  Status: not-started
-  Summary:
-  Evidence:
+
+- [ ] **HYP-0001**: Canonical Verification Runtime (CVR) Backport.
+  **Evidence**: `tools/verify_all.sh` output.
 
 ## Blockers
-- None
+
+- None.
 
 ## Deferred Risks
-- None
+
+- None.

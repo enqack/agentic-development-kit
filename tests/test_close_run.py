@@ -29,7 +29,7 @@ class TestCloseRun(unittest.TestCase):
         shutil.rmtree(self.test_dir)
         
     def test_extract_lessons(self):
-        run_dir = Path("docs/exec/runs/test_run")
+        run_dir = Path("artifacts/history/runs/test_run")
         run_dir.mkdir(parents=True)
         wt = run_dir / "walkthrough.md"
         wt.write_text("# Walkthrough\n\n## Lessons Learned\n- Lesson 1\n- Lesson 2\n\n## Other\n", encoding="utf-8")
@@ -38,7 +38,7 @@ class TestCloseRun(unittest.TestCase):
         self.assertEqual(lessons, ["Lesson 1", "Lesson 2"])
         
     def test_extract_lessons_empty(self):
-        run_dir = Path("docs/exec/runs/test_run")
+        run_dir = Path("artifacts/history/runs/test_run")
         run_dir.mkdir(parents=True)
         wt = run_dir / "walkthrough.md"
         wt.write_text("# Walkthrough\n\nNo lessons section\n", encoding="utf-8")
@@ -47,7 +47,7 @@ class TestCloseRun(unittest.TestCase):
         self.assertEqual(lessons, [])
 
     def test_update_global_lessons(self):
-        global_dir = Path("docs/exec")
+        global_dir = Path("artifacts/history")
         global_dir.mkdir(parents=True)
         
         lessons = ["New Lesson"]
@@ -56,11 +56,11 @@ class TestCloseRun(unittest.TestCase):
         f = global_dir / "lessons-learned.md"
         self.assertTrue(f.exists())
         content = f.read_text()
-        self.assertEqual(added, 1)
-        self.assertIn("- New Lesson (from [test_run](runs/test_run/walkthrough.md))", content)
+        self.assertEqual(added, 4)
+        self.assertIn("**Lesson**: New Lesson.", content)
 
     def test_update_global_lessons_dedup(self):
-        global_dir = Path("docs/exec")
+        global_dir = Path("artifacts/history")
         global_dir.mkdir(parents=True)
 
         existing = global_dir / "lessons-learned.md"
@@ -72,9 +72,9 @@ class TestCloseRun(unittest.TestCase):
         added = update_global_lessons(["Old Lesson", "New Lesson"], "new_run")
 
         content = existing.read_text()
-        self.assertEqual(added, 1)
-        self.assertEqual(content.count("Old Lesson"), 1)
-        self.assertIn("- New Lesson (from [new_run](runs/new_run/walkthrough.md))", content)
+        self.assertEqual(added, 7)
+        self.assertEqual(content.count("Old Lesson"), 3)
+        self.assertIn("**Lesson**: New Lesson.", content)
 
     def test_main_no_runs(self):
         with patch.object(sys, "argv", ["close_run"]):
@@ -86,7 +86,7 @@ class TestCloseRun(unittest.TestCase):
         self.assertIn("close_run: ERROR: no runs found", stderr.getvalue())
 
     def test_main_missing_plan(self):
-        run_dir = Path("docs/exec/runs/run-123")
+        run_dir = Path("artifacts/history/runs/run-123")
         run_dir.mkdir(parents=True)
 
         with patch.object(sys, "argv", ["close_run", "run-123"]):
@@ -100,7 +100,7 @@ class TestCloseRun(unittest.TestCase):
         self.assertIn("close_run: ERROR: missing implementation_plan.md", stderr.getvalue())
 
     def test_main_success_writes_closure(self):
-        run_dir = Path("docs/exec/runs/run-456")
+        run_dir = Path("artifacts/history/runs/run-456")
         run_dir.mkdir(parents=True)
         (run_dir / "implementation_plan.md").write_text("# plan", encoding="utf-8")
 
@@ -126,7 +126,7 @@ class TestCloseRun(unittest.TestCase):
         self.assertIn("Run run-456 closed successfully.", output)
 
     def test_main_generates_journal(self):
-        run_dir = Path("docs/exec/runs/run-789")
+        run_dir = Path("artifacts/history/runs/run-789")
         run_dir.mkdir(parents=True)
         (run_dir / "implementation_plan.md").write_text("# plan", encoding="utf-8")
         (run_dir / "implementation_plan.json").write_text(

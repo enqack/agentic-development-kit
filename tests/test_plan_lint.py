@@ -51,7 +51,7 @@ class TestPlanLint(unittest.TestCase):
             rc = plan_lint.main(["plan_lint", "--run"])
             
             self.assertEqual(rc, 1)
-            self.assertIn("no docs/exec/runs/**/implementation_plan.json found", self.held_stderr.getvalue())
+            self.assertIn("no artifacts/history/runs/**/implementation_plan.json found", self.held_stderr.getvalue())
 
     def test_malformed_json(self):
         from tempfile import TemporaryDirectory
@@ -77,7 +77,18 @@ class TestPlanLint(unittest.TestCase):
         with TemporaryDirectory() as tmp_dir:
             os.chdir(tmp_dir)
             p = Path("implementation_plan.json")
-            p.write_text(json.dumps({"meta": {}, "items": [{"task": "one"}]}), encoding="utf-8")
+            p.write_text(json.dumps({"meta": {"version": "1.0", "generated_at": "now", "operating_mode": "full-execution"}, "items": [
+                {
+                    "id": "HYP-0001",
+                    "status": "proposed",
+                    "hypothesis": "Valid hypothesis string > 10 chars",
+                    "scope": {"components": ["core"], "files": []},
+                    "invariants": ["none"],
+                    "tasks": [{"step": 1, "description": "d", "done_definition": "d"}],
+                    "tests": {"unit": [], "integration": [], "build": []},
+                    "evidence": {"required_artifacts": ["dummy"]}
+                }
+            ]}), encoding="utf-8")
             
             rc = plan_lint.main(["plan_lint"])
             
@@ -88,16 +99,27 @@ class TestPlanLint(unittest.TestCase):
         from tempfile import TemporaryDirectory
         with TemporaryDirectory() as tmp_dir:
             os.chdir(tmp_dir)
-            run = Path("docs/exec/runs/run-1")
+            run = Path("artifacts/history/runs/run-1")
             run.mkdir(parents=True)
             (run / "implementation_plan.json").write_text(
-                json.dumps({"meta": {}, "items": [{"task": "two"}]}), encoding="utf-8"
+                json.dumps({"meta": {"version": "1.0", "generated_at": "now", "operating_mode": "full-execution"}, "items": [
+                    {
+                        "id": "HYP-0002",
+                        "status": "proposed",
+                        "hypothesis": "Valid hypothesis string > 10 chars",
+                        "scope": {"components": ["core"], "files": []},
+                        "invariants": ["none"],
+                        "tasks": [{"step": 1, "description": "d", "done_definition": "d"}],
+                        "tests": {"unit": [], "integration": [], "build": []},
+                        "evidence": {"required_artifacts": ["dummy"]}
+                    }
+                ]}), encoding="utf-8"
             )
             
             rc = plan_lint.main(["plan_lint", "--run"])
             
             self.assertEqual(rc, 0)
-            self.assertIn("docs/exec/runs/run-1/implementation_plan.json", self.held_stdout.getvalue())
+            self.assertIn("artifacts/history/runs/run-1/implementation_plan.json", self.held_stdout.getvalue())
 
 if __name__ == "__main__":
     unittest.main()

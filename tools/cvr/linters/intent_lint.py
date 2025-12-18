@@ -10,26 +10,38 @@ def die(msg: str) -> int:
   return 1
 
 def parse_frontmatter(txt: str) -> dict[str, str]:
-  # Minimal YAML frontmatter parser for key: value pairs.
+  # Minimal YAML frontmatter parser for key: value pairs and lists.
   m = re.match(r"(?s)\A---\s*\n(.*?)\n---\s*\n", txt)
   if not m:
     return {}
   block = m.group(1)
   out: dict[str, str] = {}
+  current_key = None
   for line in block.splitlines():
-    line = line.strip()
-    if not line or line.startswith("#"):
+    stripped = line.strip()
+    if not stripped or stripped.startswith("#"):
+      continue
+    # Check if it's a list item (starts with -)
+    if stripped.startswith("-") and current_key:
+      # Part of a list for current_key
+      if current_key not in out:
+        out[current_key] = stripped
+      else:
+        out[current_key] += " " + stripped
       continue
     if ":" not in line:
       continue
     k, v = line.split(":", 1)
-    out[k.strip()] = v.strip().strip('"').strip("'")
+    k = k.strip()
+    v = v.strip().strip('"').strip("'")
+    out[k] = v
+    current_key = k if v in ("|", ">", "") else None
   return out
 
 def main() -> int:
-  p = Path("docs/intent/project_intent.md")
+  p = Path("artifacts/intent/project_intent.md")
   if not p.exists():
-    return die("missing docs/intent/project_intent.md (run establish-intent first)")
+    return die("missing artifacts/intent/project_intent.md (run establish-intent first)")
 
   txt = p.read_text(encoding="utf-8")
   fm = parse_frontmatter(txt)

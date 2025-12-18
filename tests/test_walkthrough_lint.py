@@ -4,7 +4,7 @@ import walkthrough_lint
 
 
 def _write_run_walkthrough(root: Path, content: str) -> Path:
-  run = root / "docs/exec/runs/run-1"
+  run = root / "artifacts/history/runs/run-1"
   run.mkdir(parents=True)
   wt = run / "walkthrough.md"
   wt.write_text(content, encoding="utf-8")
@@ -62,4 +62,4 @@ def test_valid_walkthrough(monkeypatch, tmp_path, capsys):
   captured = capsys.readouterr()
 
   assert rc == 0
-  assert "docs/exec/runs/run-1/walkthrough.md" in captured.out
+  assert "artifacts/history/runs/run-1/walkthrough.md" in captured.out

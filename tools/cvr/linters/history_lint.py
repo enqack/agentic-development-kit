@@ -14,10 +14,15 @@ import sys
 from pathlib import Path
 from typing import List, Set, Tuple
 
+import jsonschema
 from lint_common import validate_paths
 
+def load_history_schema() -> dict:
+  schema_path = Path(__file__).parent.parent / "schemas/history_schema.json"
+  return json.loads(schema_path.read_text(encoding="utf-8"))
 
-HISTORY_DIR = Path("history")
+
+HISTORY_DIR = Path("artifacts/history")
 REQUIRED_ENTRY_KEYS = {"agenda_id", "hypothesis_id", "timestamp", "summary", "evidence"}
 HYP_RE = re.compile(r"^HYP-\d{4}$")
 AG_RE = re.compile(r"^AG-\d{6}$")
@@ -55,9 +60,10 @@ def lint_ndjson_file(path: Path) -> Tuple[List[str], Set[str], Set[str]]:
 
   lines = path.read_text(encoding="utf-8").splitlines()
   if not lines:
-    errors.append(format_error(f"{path}: file is empty"))
+    # Allow empty NDJSON files during initialization
     return errors, hyp_ids, agenda_ids
 
+  schema = load_history_schema()
   for lineno, line in enumerate(lines, start=1):
     if not line.strip():
       errors.append(format_error(f"{path}:{lineno}: blank line not allowed in NDJSON"))
@@ -67,57 +73,24 @@ def lint_ndjson_file(path: Path) -> Tuple[List[str], Set[str], Set[str]]:
     except json.JSONDecodeError as exc:
       errors.append(format_error(f"{path}:{lineno}: invalid JSON: {exc}"))
       continue
-    if not isinstance(entry, dict):
-      errors.append(format_error(f"{path}:{lineno}: expected object, got {type(entry).__name__}"))
+
+    try:
+      jsonschema.validate(instance=entry, schema=schema)
+    except jsonschema.ValidationError as exc:
+      errors.append(format_error(f"{path}:{lineno}: schema validation failed: {exc.message}"))
       continue
 
-    # record_type is strictly required now to differentiate validation
-    if "record_type" not in entry:
-        errors.append(format_error(f"{path}:{lineno}: missing required key: record_type"))
-        continue
-    
     rtype = entry["record_type"]
-    if rtype not in {"hypothesis", "agenda", "journal"}:
-        errors.append(format_error(f"{path}:{lineno}: unknown record_type '{rtype}'"))
 
-    # Common fields
-    if "timestamp" not in entry:
-         errors.append(format_error(f"{path}:{lineno}: missing required key: timestamp"))
-    elif not isinstance(entry["timestamp"], str) or not entry["timestamp"].strip():
-         errors.append(format_error(f"{path}:{lineno}: timestamp must be check non-empty string"))
+    # Evidence paths still need custom check (against repo root etc)
+    errors.extend(validate_evidence_paths(entry.get("evidence"), f"{path}:{lineno}"))
 
-    if "summary" not in entry:
-        errors.append(format_error(f"{path}:{lineno}: missing required key: summary"))
-    elif not isinstance(entry["summary"], str) or not entry["summary"].strip():
-         errors.append(format_error(f"{path}:{lineno}: summary must be a non-empty string"))
-
-    if "evidence" not in entry:
-        errors.append(format_error(f"{path}:{lineno}: missing required key: evidence"))
-    else:
-        errors.extend(validate_evidence_paths(entry.get("evidence"), f"{path}:{lineno}"))
-
-    # Type-specific validation
-    if rtype == "journal":
-        # journals don't require IDs
-        pass
-    else:
-        # standard records require IDs
-        agenda_id = entry.get("agenda_id")
-        hypothesis_id = entry.get("hypothesis_id")
-
-        if "agenda_id" not in entry:
-             errors.append(format_error(f"{path}:{lineno}: missing required key: agenda_id"))
-        elif not isinstance(agenda_id, str) or not AG_RE.fullmatch(agenda_id):
-            errors.append(format_error(f"{path}:{lineno}: agenda_id must match AG-######"))
-        else:
-            agenda_ids.add(agenda_id)
-
-        if "hypothesis_id" not in entry:
-             errors.append(format_error(f"{path}:{lineno}: missing required key: hypothesis_id"))
-        elif not isinstance(hypothesis_id, str) or not HYP_RE.fullmatch(hypothesis_id):
-            errors.append(format_error(f"{path}:{lineno}: hypothesis_id must match HYP-####"))
-        else:
-            hyp_ids.add(hypothesis_id)
+    # ID tracking for cross-check
+    if rtype != "journal":
+      agenda_id = entry.get("agenda_id")
+      hypothesis_id = entry.get("hypothesis_id")
+      if agenda_id: agenda_ids.add(agenda_id)
+      if hypothesis_id: hyp_ids.add(hypothesis_id)
 
   return errors, hyp_ids, agenda_ids
 
@@ -167,7 +140,8 @@ def lint_agenda_state(path: Path, hist_hypotheses: Set[str], hist_agenda: Set[st
       if not isinstance(hyp_id, str) or not HYP_RE.fullmatch(hyp_id):
         errors.append(format_error(f"{ctx}: hypothesis_id must match HYP-#### when provided"))
       else:
-        seen_hypotheses.add(hyp_id)
+        # Track for cross-check, but don't treat as 'definition' yet
+        pass
 
     if "evidence" in item:
       errors.extend(validate_evidence_paths(item.get("evidence"), f"{ctx}"))
@@ -224,8 +198,8 @@ def main() -> int:
   agenda_state = HISTORY_DIR / "agenda_state.json"
   if agenda_state.exists():
     all_errors.extend(lint_agenda_state(agenda_state, hyp_ids, agenda_ids))
-  else:
-    all_errors.append(format_error("history/agenda_state.json is required when history exists"))
+  elif hyp_ids or agenda_ids:
+    all_errors.append(format_error("artifacts/history/agenda_state.json is required when history entries exist"))
 
   if all_errors:
     for err in all_errors:

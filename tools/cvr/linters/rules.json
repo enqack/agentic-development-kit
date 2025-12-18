@@ -87,7 +87,7 @@
             "rule_id": "INTENT_FILE_MISSING",
             "title": "Project intent missing",
             "severity": "error",
-            "message_regex": "missing docs/intent/project_intent\\.md",
+            "message_regex": "missing artifacts/intent/project_intent\\.md",
             "fix": {
                 "strategy": "run_workflow",
                 "safe_steps": [
@@ -141,8 +141,8 @@
                 ],
                 "examples": [
                     {
-                        "before": "/home/user/repo/docs/file.md",
-                        "after": "docs/file.md"
+                        "before": "/home/user/repo/artifacts/history/file.md",
+                        "after": "artifacts/history/file.md"
                     }
                 ]
             }

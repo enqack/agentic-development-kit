@@ -22,7 +22,7 @@ def test_find_run_artifact(monkeypatch, tmp_path):
   monkeypatch.chdir(tmp_path)
   assert lint_common.find_run_artifact("implementation_plan.json") is None
 
-  runs_root = tmp_path / "docs/exec/runs"
+  runs_root = tmp_path / "artifacts/history/runs"
   run_a = runs_root / "run-a"
   run_a.mkdir(parents=True)
   run_b = runs_root / "run-b"

@@ -2,7 +2,7 @@
 description: Execute an approved implementation plan, collect evidence, and summarize results
 operating_mode: full-execution
 artifacts_required:
-  - docs/intent/project_intent.md
+  - artifacts/intent/project_intent.md
   - docs/exec/runs/<run-id>/walkthrough.md
   - artifacts/test_results/
   - artifacts/logs/
@@ -11,12 +11,12 @@ artifacts_required:
 # execute-plan
 
 Precondition:
-- `docs/intent/project_intent.md` exists and reflects the repo's purpose.
+- `artifacts/intent/project_intent.md` exists and reflects the repo's purpose.
 
 If precondition is not met:
 - fail closed (panic) and immediately initiate `establish-intent` by asking:
   - "What are you trying to produce in this repo (software, book, research notes, something else), and what does 'done' look like for the first milestone?"
-- write `docs/intent/project_intent.md`
+- write `artifacts/intent/project_intent.md`
 - then continue with the requested workflow
 
 ## Ignore semantics (normative)

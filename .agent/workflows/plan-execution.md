@@ -2,7 +2,7 @@
 description: Produce implementation plan artifacts from verified agenda
 operating_mode: design-only
 artifacts_required:
-  - docs/intent/project_intent.md
+  - artifacts/intent/project_intent.md
   - docs/exec/runs/<run-id>/implementation_plan.md
   - docs/exec/runs/<run-id>/implementation_plan.json
 ---
@@ -10,12 +10,12 @@ artifacts_required:
 # plan-execution
 
 Precondition:
-- `docs/intent/project_intent.md` exists and reflects the repo's purpose.
+- `artifacts/intent/project_intent.md` exists and reflects the repo's purpose.
 
 If precondition is not met:
 - fail closed (panic) and immediately initiate `establish-intent` by asking:
   - "What are you trying to produce in this repo (software, book, research notes, something else), and what does 'done' look like for the first milestone?"
-- write `docs/intent/project_intent.md`
+- write `artifacts/intent/project_intent.md`
 - then continue with the requested workflow
 
 ## Prerequisites (conditional)
@@ -43,7 +43,7 @@ They MUST NOT be treated as a precondition failure or a panic.
 ## Context load (normative)
 
 Before drafting any plan, read:
-- `docs/intent/project_intent.md`
+- `artifacts/intent/project_intent.md`
 - `AGENTS.md`
 - `AGENDA.md`
 
