@@ -8,3 +8,9 @@
 #
 # Optional: enable pytest for Python projects that choose to use it.
 pytest>=7.0,<9.0
+
+# Markdown formatting
+mdformat>=0.7.17
+mdformat-gfm>=0.3.5
+mdformat-frontmatter>=2.0.1
+mdformat-footnote>=0.1.1

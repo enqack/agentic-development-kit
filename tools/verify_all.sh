@@ -15,6 +15,16 @@ run_log() {
   echo "==> OK: ${name}" | tee -a "${out}"
 }
 
+# Check external tools
+if [ -x tools/check_tools.sh ]; then
+  if tools/check_tools.sh >/dev/null 2>&1; then
+    # Tools present, enforce strictness
+    run_log "format_md_check" python3 tools/format_md.py --check
+  else
+    echo "WARNING: Missing markdown tools (see tools/check_tools.sh). Skipping formatting checks."
+  fi
+fi
+
 # Baseline template presence
 if [ -f tools/linters/template_baseline_lint.py ]; then
   run_log "template_baseline_lint" python3 tools/linters/template_baseline_lint.py
