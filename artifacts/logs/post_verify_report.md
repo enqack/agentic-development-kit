@@ -6,6 +6,8 @@
 - [x] Backport CVRL to ADK
 - [x] Finalize ADK CVRL Backport Verification
 - [x] Implement Activity Ledger (Ecosystem-wide)
+- [x] Refine Ledger Schema
+- [x] Fix CI (lessons-learned.md)
 
 ## Items still open
 
@@ -17,3 +19,4 @@
 - tools/cvr/log_action.py
 - AGENTS.md
 - walkthrough.md
+- artifacts/history/lessons-learned.md
