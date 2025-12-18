@@ -1,0 +1,18 @@
+{
+  "evidence": [
+    "docs/exec/runs/0000_TEMPLATE/implementation_plan.md",
+    "docs/exec/runs/0000_TEMPLATE/walkthrough.md"
+  ],
+  "generated": "1970-01-01T00:00:00Z",
+  "hypothesis": "Provide baseline run artifacts required by CI evidence gating.",
+  "operating_mode": "template-baseline",
+  "run_id": "0000_TEMPLATE",
+  "status": "template",
+  "tasks": [
+    {
+      "done_definition": "Baseline run artifacts exist under docs/exec/runs/0000_TEMPLATE/.",
+      "id": "TMP-0000",
+      "title": "Template baseline artifacts"
+    }
+  ]
+}

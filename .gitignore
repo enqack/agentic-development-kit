@@ -32,6 +32,7 @@ artifacts/diffs/*
 
 docs/exec/runs/*
 !docs/exec/runs/.gitkeep
+!docs/exec/runs/0000_TEMPLATE/
 
 # --- Safety: never commit local scratch ---
 *.swp
