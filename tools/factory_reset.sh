@@ -33,11 +33,17 @@ fi
 
 echo "WARNING: initiating FACTORY RESET. All history will be lost."
 
-# 1. Clear history/runs
-echo "Cleaning artifacts/history/runs..."
-if [ -d "artifacts/history/runs" ]; then
-  find artifacts/history/runs -mindepth 1 -delete
-  touch artifacts/history/runs/.gitkeep
+# 1. Clear history
+echo "Cleaning artifacts/history..."
+if [ -d "artifacts/history" ]; then
+  # Delete all files in history root (history.md, history.ndjson, etc.)
+  find artifacts/history -maxdepth 1 -type f -delete
+  # Delete runs content
+  if [ -d "artifacts/history/runs" ]; then
+     find artifacts/history/runs -mindepth 1 -delete
+     touch artifacts/history/runs/.gitkeep
+  fi
+  # Re-touch .gitkeep in history if needed (though we only deleted files)
 fi
 
 # 2. Clear journals
