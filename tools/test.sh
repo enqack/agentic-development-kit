@@ -35,11 +35,19 @@ fi
 
 # Python: only run if there is a python tests dir (avoid guessing other languages).
 if [ -d tests ] && command -v python3 >/dev/null 2>&1; then
-  if command -v pytest >/dev/null 2>&1; then
-    echo "tools/test.sh: detected Python tests -> pytest"
-    pytest -q | tee artifacts/test_results/pytest_output.txt
+  # Prefer python -m pytest to ensure we use the same interpreter environment
+  if python3 -c "import pytest" >/dev/null 2>&1; then
+    echo "tools/test.sh: detected Python tests -> pytest (module)"
+    python3 -m pytest -q | tee artifacts/test_results/pytest_output.txt
     exit 0
   fi
+  
+  if command -v pytest >/dev/null 2>&1; then
+     echo "tools/test.sh: detected Python tests -> pytest (binary)"
+     pytest -q | tee artifacts/test_results/pytest_output.txt
+     exit 0
+  fi
+  
   echo "tools/test.sh: detected Python tests -> unittest"
   python3 -m unittest discover -s tests -p "test*.py" | tee artifacts/test_results/unittest_output.txt
   exit 0

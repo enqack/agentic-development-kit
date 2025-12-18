@@ -4,24 +4,34 @@ A language-agnostic repository template for **planning → execution → verific
 
 The project inside the repo may be software, writing, research, art, or mixed. The workflow system uses Python as a **verification runtime only** (to run `tools/*.py`).
 
-## First run
+## Features
 
-Run:
+### 🧠 Deep Thoughts Journal
+Automated, narrative reconstruction of every run.
+- **Narrative**: `artifacts/journal/<run-id>.md` (Theatrical, deterministic summary of Goal, Outcome, and Reflections).
+- **Timeline**: `docs/exec/deep-thoughts.md` (Reverse-chronological compilation of all journals).
 
-- `/establish-intent`
+### 📜 Unified History
+Chronological event log merging hypotheses, agenda items, and journal entries.
+- **Data**: `docs/exec/history.ndjson`
+- **Updates**: Automatically aggregated via `tools/aggregate_history.py`.
 
-This creates `docs/intent/project_intent.md`, which is required before planning or execution.
+### 🛡️ Verification Suite
+Comprehensive tooling to ensure process integrity.
+- **Linters**: Enforce schema compliance for journals, history, and plans (`tools/linters/*.py`).
+- **Runner**: `tools/verify_all.sh` runs all linters and project tests.
 
-## Panic / fail-closed behavior
+## Workflow
 
-If you invoke a workflow that requires intent (e.g., `/plan-execution`) before intent exists, the agent MUST fail closed and immediately ask the canonical intent question, write the intent file, and then resume the requested workflow. No override prompts.
+### 1. Initialize
+Run `/establish-intent` to define `docs/intent/project_intent.md`.
 
-## Ignore semantics
-
-`.gitignore` and `.agentsignore` are NOT permission systems. They do not block file creation.
-
-- Planning artifacts MUST be written under `docs/exec/runs/<run-id>/` even though that directory is typically gitignored.
-- Agents MUST NOT ask the user to "override gitignore" to create run artifacts.
+### 2. Plan & Execute
+Follow the standard loop:
+1.  **Plan**: `/plan-execution` (Generate `implementation_plan.md`)
+2.  **Execute**: (Write code)
+3.  **Verify**: `tools/verify_all.sh`
+4.  **Close**: `python3 tools/close_run.py <run-id>` (Generates journal)
 
 ## Verification runtime
 
@@ -37,6 +47,17 @@ Run:
 tools/verify_all.sh
 ```
 
+## Panic / fail-closed behavior
+
+If you invoke a workflow that requires intent (e.g., `/plan-execution`) before intent exists, the agent MUST fail closed and immediately ask the canonical intent question, write the intent file, and then resume the requested workflow. No override prompts.
+
+## Ignore semantics
+
+`.gitignore` and `.agentsignore` are NOT permission systems. They do not block file creation.
+
+- Planning artifacts MUST be written under `docs/exec/runs/<run-id>/` even though that directory is typically gitignored.
+- Agents MUST NOT ask the user to "override gitignore" to create run artifacts.
+
 ## Tests are language-agnostic
 
 Project tests are defined in:
@@ -45,4 +66,4 @@ Project tests are defined in:
 
 ## Optional history
 
-You can maintain a structured history that captures major runs, decisions, and reconciliations. Regenerate it from the current artifacts with `python update_history.py`, keep the formatting tidy with `python history_lint.py`, and sanity-check the output with `./history_check.sh`.
+You can maintain a structured history that captures major runs, decisions, and reconciliations. Regenerate it from the current artifacts with `python tools/aggregate_history.py`, and sanity-check the output with `tools/verify_all.sh`.
