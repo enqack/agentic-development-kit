@@ -16,7 +16,7 @@ jobs:
           python-version: "3.11"
 
       - name: Gate evidence on code changes
-        run: tools/require_evidence_if_code_changed.sh
+        run: bash tools/require_evidence_if_code_changed.sh
 
       - name: Verify all (lints + tests when available)
-        run: tools/verify_all.sh
+        run: bash tools/verify_all.sh
