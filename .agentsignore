@@ -26,6 +26,12 @@
 **/*.bin
 **/*.zip
 
+# Verification Runtime (supervision kernel) - agents MUST NOT modify
+tools/**
+lib/**
+requirements-verify.txt
+.agent/workflows/**
+
 # Allowlist the important stuff explicitly
 !.agent/**
 !docs/**
@@ -34,3 +40,4 @@
 !implementation_plan.*
 !walkthrough.md
 !artifacts/**
+

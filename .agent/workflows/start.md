@@ -13,6 +13,13 @@ User-friendly entry point for the agentic development cycle.
 
 It ensures basics are in place (`project_intent.md`) and then hands off to the main orchestrator (`plan-cycle`).
 
+## Inputs
+
+- `auto_approve` (boolean, optional): If true, skips the plan approval gate. default: `false`.
+
+> [!WARNING]
+> Setting `auto_approve: true` removes the human-in-the-loop safety check. Use only for routine tasks or trusted automated loops.
+
 ## Workflow
 
 1. **Check Intent**
@@ -20,4 +27,5 @@ It ensures basics are in place (`project_intent.md`) and then hands off to the m
    - If MISSING, run `establish-intent`.
 
 2. **Hand off to Cycle**
-   - Run `plan-cycle` workflow.
+   - Run `plan-cycle` workflow with `auto_approve` argument.
+

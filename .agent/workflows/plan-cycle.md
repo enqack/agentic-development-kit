@@ -13,6 +13,11 @@ This is a **meta-workflow** that orchestrates the standard development lifecycle
 
 It does not perform work directly; it chains other workflows to ensure safety, context, and institutional memory.
 
+## Inputs
+
+- `auto_approve` (boolean, optional): Bypass manual plan approval. default: `false`.
+
+
 ## Workflow Sequence
 
 ### 1. Preparation (Audit)
@@ -30,7 +35,13 @@ It does not perform work directly; it chains other workflows to ensure safety, c
 3. **`plan-execution`**
    - Reads context and agenda.
    - Produces `docs/exec/runs/<run-id>/implementation_plan.md`.
-   - **STOP**: Wait for operator approval of the plan.
+
+   **Approval Decision**:
+   - IF `auto_approve` is `true`:
+     - **PROCEED** automatically to execution.
+   - IF `auto_approve` is `false` (default):
+     - **STOP**: Wait for operator approval of the plan.
+
 
 ### 3. Execution (Action)
 

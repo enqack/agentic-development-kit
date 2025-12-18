@@ -30,6 +30,36 @@ The Runtime MUST make **no assumptions** about the User Project's language, fram
 - Project-specific testing logic
 - Domain modeling
 
+### Verification Runtime Boundary (Normative)
+
+**Agents MUST NOT modify the Verification Runtime.**
+
+The following paths are **off-limits** for all agent modifications:
+
+- `tools/**` (all verification scripts, linters, formatters)
+- `lib/**` (all shared Python modules)
+- `requirements-verify.txt` (Runtime dependencies)
+- `.agent/workflows/**` (workflow definitions)
+
+**Rationale**: The Runtime is the supervision kernel. Modifying it while executing under its supervision creates circular dependencies and undermines determinism.
+
+**Operating Mode Exception**: Agents in `maintenance` mode MAY modify Runtime components, but MUST follow the full scientific method (hypotheses, experiments, evidence).
+
+**Escalation Protocol**:
+
+If the Verification Runtime has bugs, defects, or missing features:
+
+1. **STOP** – Do not attempt to fix or work around the issue.
+2. **NOTIFY** – Alert the operator with:
+   - Exact error or limitation encountered
+   - Affected Runtime component (file path)
+   - Suggested fix or feature request
+3. **DEFER** – The operator will either:
+   - Fix the Runtime themselves
+   - Escalate to the ADK maintainer
+   - Grant temporary `maintenance` mode access
+
+
 ______________________________________________________________________
 
 ## Normative Language
