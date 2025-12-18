@@ -66,6 +66,19 @@ if [ -f tools/linters/content_lint.py ]; then
 fi
 if [ -f tools/history_lint.py ]; then
   run_log "history_lint" python3 tools/history_lint.py
+else
+  # Fallback to tools/linters/history_lint.py if moved (it was in plan to update, kept in linters/)
+  if [ -f tools/linters/history_lint.py ]; then
+    run_log "history_lint" python3 tools/linters/history_lint.py
+  fi
+fi
+
+# Journal lint
+if [ -f tools/linters/journal_lint.py ] && [ -d artifacts/journal ]; then
+  # Only run if journals exist
+  if ls artifacts/journal/*.md >/dev/null 2>&1; then
+    run_log "journal_lint" python3 tools/linters/journal_lint.py
+  fi
 fi
 
 # Plan lint: validate run-dir plan if present, else root

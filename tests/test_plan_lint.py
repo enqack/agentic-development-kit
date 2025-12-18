@@ -3,6 +3,11 @@ from pathlib import Path
 
 import pytest
 
+import os
+import sys
+
+# Add linters to path
+sys.path.append(os.path.abspath("tools/linters"))
 import plan_lint
 
 

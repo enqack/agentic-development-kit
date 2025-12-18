@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
+"""Deep Thoughts - Anthropomorphic Journal Generator.
+
+This tool reconstructs a narrative "journal entry" from a run's artifacts.
+It is deterministic, post-hoc, and theatrical.
+"""
+
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
-
-class JournalError(Exception):
-    """Raised when journal emission fails."""
+HEADER = "### Deep Thoughts, by an Agent"
+DISCLAIMER = "*Editor’s note: This entry is a dramatized reconstruction of a deterministic decision process, derived from run artifacts.*"
 
 
 def die(msg: str) -> int:
@@ -18,42 +24,28 @@ def note(msg: str):
     print(f"journal: {msg}")
 
 
-def normalize_status(status: Optional[str]) -> str:
-    normalized = (status or "").strip().lower()
-    return normalized or "active"
-
-
-def load_plan(plan_path: Path) -> Optional[Dict]:
+def load_plan_summary(run_dir: Path) -> str:
+    plan_path = run_dir / "implementation_plan.json"
     if not plan_path.exists():
-        return None
-
+        return "I had no plan, behaving purely reactively."
+    
     try:
         data = json.loads(plan_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        raise JournalError(f"invalid JSON in {plan_path}: {exc}") from exc
-    except OSError as exc:
-        raise JournalError(f"failed to read {plan_path}: {exc}") from exc
-
-    items: List[Dict] = []
-    for raw in data.get("items", []):
-        evidence = raw.get("evidence", {}).get("required_artifacts", []) if isinstance(raw, Dict) else []
-        entry = {
-            "id": raw.get("id") if isinstance(raw, Dict) else None,
-            "hypothesis": (raw.get("hypothesis") if isinstance(raw, Dict) else "") or "",
-            "status": normalize_status(raw.get("status") if isinstance(raw, Dict) else None),
-            "evidence": sorted({ev for ev in evidence if ev}),
-        }
-        items.append(entry)
-
-    items.sort(key=lambda item: ("" if item["id"] is None else str(item["id"])))
-
-    return {
-        "path": plan_path.name,
-        "items": items,
-    }
+        items = data.get("items", [])
+        if not items:
+            return "I had an empty plan."
+        
+        count = len(items)
+        first_hyp = items[0].get("hypothesis", "something unknown")
+        return f"I set out to test {count} hypotheses, starting with '{first_hyp}'."
+    except Exception:
+        return "I had a plan, but it was indecipherable."
 
 
 def extract_lessons(walkthrough_path: Path) -> List[str]:
+    if not walkthrough_path.exists():
+        return []
+    
     content = walkthrough_path.read_text(encoding="utf-8")
     lines = content.splitlines()
     lessons: List[str] = []
@@ -71,71 +63,83 @@ def extract_lessons(walkthrough_path: Path) -> List[str]:
     return lessons
 
 
-def load_walkthrough(walkthrough_path: Path) -> Optional[Dict]:
-    if not walkthrough_path.exists():
-        return None
-
-    try:
-        lessons = extract_lessons(walkthrough_path)
-    except OSError as exc:
-        raise JournalError(f"failed to read {walkthrough_path}: {exc}") from exc
-
-    return {
-        "path": walkthrough_path.name,
-        "lessons": lessons,
-    }
+def load_outcome(run_dir: Path) -> str:
+    report_path = run_dir / "post_verify_report.md"
+    if not report_path.exists():
+        return "The run concluded without a final report."
+    
+    text = report_path.read_text(encoding="utf-8")
+    status_match = re.search(r"Status:\s*([A-Za-z\-]+)", text)
+    status = status_match.group(1).strip() if status_match else "unknown"
+    
+    return f"The run finished with status '{status}'."
 
 
-def build_journal(run_dir: Path) -> Optional[Dict]:
-    artifacts: Dict[str, Dict] = {}
-
-    plan_info = load_plan(run_dir / "implementation_plan.json")
-    if plan_info is None:
-        note(f"no implementation_plan.json found in {run_dir}; skipping plan capture")
+def generate_narrative(run_id: str, plan_summary: str, outcome: str, lessons: List[str]) -> str:
+    """Constructs the deterministic narrative."""
+    
+    narrative = [
+        f"**Run {run_id}**",
+        "",
+        f"**Goal**: {plan_summary}",
+        f"**Outcome**: {outcome}",
+        "",
+        "**Reflections**:",
+    ]
+    
+    if lessons:
+        for lesson in lessons:
+            narrative.append(f"- {lesson}")
     else:
-        artifacts["implementation_plan"] = plan_info
-
-    walkthrough_info = load_walkthrough(run_dir / "walkthrough.md")
-    if walkthrough_info is None:
-        note(f"no walkthrough.md found in {run_dir}; skipping walkthrough capture")
-    else:
-        artifacts["walkthrough"] = walkthrough_info
-
-    if not artifacts:
-        note(f"no recognized artifacts found in {run_dir}; nothing to journal")
-        return None
-
-    return {
-        "run": run_dir.name,
-        "artifacts": artifacts,
-    }
+        narrative.append("- I learned nothing specific this time.")
+        
+    narrative.append("")
+    narrative.append("**Decision**: I proceeded with the available evidence.")
+    
+    return "\n".join(narrative)
 
 
 def emit_journal(run_dir: Path) -> Optional[Path]:
-    journal = build_journal(run_dir)
-    if journal is None:
+    run_id = run_dir.name
+    
+    # 1. Gather context
+    plan_summary = load_plan_summary(run_dir)
+    outcome = load_outcome(run_dir)
+    lessons = extract_lessons(run_dir / "walkthrough.md")
+    
+    # 2. Generate content
+    body = generate_narrative(run_id, plan_summary, outcome, lessons)
+    
+    # 3. Format artifact
+    content = f"{HEADER}\n*(reconstructed)*\n\n{body}\n\n---\n\n{DISCLAIMER}\n"
+    
+    # 4. Write
+    journal_dir = Path("artifacts/journal")
+    journal_dir.mkdir(parents=True, exist_ok=True)
+    
+    out_path = journal_dir / f"{run_id}.md"
+    try:
+        out_path.write_text(content, encoding="utf-8")
+    except OSError as exc:
+        die(f"failed to write {out_path}: {exc}")
         return None
 
-    journal_path = run_dir / "journal.json"
-    try:
-        journal_path.write_text(json.dumps(journal, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    except OSError as exc:
-        raise JournalError(f"failed to write {journal_path}: {exc}") from exc
-
-    note(f"wrote journal to {journal_path}")
-    return journal_path
+    note(f"wrote journal to {out_path}")
+    return out_path
 
 
 def get_latest_run() -> Optional[Path]:
     runs_dir = Path("docs/exec/runs")
     if not runs_dir.exists():
         return None
+    # Sort by name (timestamp)
     runs = sorted([d for d in runs_dir.iterdir() if d.is_dir()])
     return runs[-1] if runs else None
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    argv = argv or sys.argv[1:]
+    if argv is None:
+        argv = sys.argv[1:]
     if argv:
         run_dir = Path(argv[0])
     else:
@@ -146,11 +150,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not run_dir.exists():
         return die(f"run directory {run_dir} does not exist")
 
-    try:
-        emit_journal(run_dir)
-    except JournalError as exc:
-        return die(str(exc))
-
+    emit_journal(run_dir)
     return 0
 
 

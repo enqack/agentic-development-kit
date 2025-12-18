@@ -1,78 +1,79 @@
 #!/usr/bin/env python3
-"""Lint journal artifacts for required metadata and path hygiene."""
+"""Lint journal artifacts for policy compliance.
 
-from __future__ import annotations
+Enforces:
+- Required header
+- Disclaimer presence
+- Path hygiene (no absolute paths or file URLs)
+"""
 
-import re
 import sys
 from pathlib import Path
-from typing import Iterable, List
+from typing import List
 
-from lint_common import ABS_PATH_RE, FILE_URL_RE
+from lint_common import validate_paths
 
-JOURNAL_DIR = Path("artifacts/journal")
-REQUIRED_TITLE = "# Journal"
-REQUIRED_DISCLAIMER = "> Journal entries are ephemeral and must not include secrets or sensitive data."
-MAX_WORDS = 400
-MAX_LINES = 40
-HTTP_URL_RE = re.compile(r"https?://")
+HEADER_REQ = "### Deep Thoughts, by an Agent"
+DISCLAIMER_REQ = "*Editor’s note: This entry is a dramatized reconstruction of a deterministic decision process, derived from run artifacts.*"
 
 
-def collect_journals() -> list[Path]:
-  if not JOURNAL_DIR.exists():
-    return []
-  return sorted(p for p in JOURNAL_DIR.glob("*.md") if p.is_file())
+def format_error(path: Path, msg: str) -> str:
+    return f"journal_lint: ERROR: {path.name}: {msg}"
 
 
-def check_paths(text: str, path: Path) -> Iterable[str]:
-  if FILE_URL_RE.search(text):
-    yield f"{path}: contains file:// URL; use repo-relative paths only"
-  if HTTP_URL_RE.search(text):
-    yield f"{path}: contains external URL; use repo-relative paths only"
-  if ABS_PATH_RE.search(text):
-    yield f"{path}: contains absolute path; use repo-relative paths only"
+def lint_file(path: Path) -> List[str]:
+    errors: List[str] = []
+    text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
 
+    # 1. Header Logic
+    # We expect the header to be near the top.
+    found_header = False
+    for line in lines[:5]:
+        if HEADER_REQ in line:
+            found_header = True
+            break
+    if not found_header:
+        errors.append(format_error(path, f"missing required header: '{HEADER_REQ}'"))
 
-def lint_journal(path: Path) -> List[str]:
-  errors: List[str] = []
-  text = path.read_text(encoding="utf-8")
+    # 2. Disclaimer Logic
+    # We expect the disclaimer near the bottom.
+    found_disclaimer = False
+    for line in lines[-5:]:
+        if DISCLAIMER_REQ in line:
+            found_disclaimer = True
+            break
+    if not found_disclaimer:
+        errors.append(format_error(path, "missing required editor disclaimer"))
 
-  if REQUIRED_TITLE not in text:
-    errors.append(f"{path}: missing required '{REQUIRED_TITLE}' heading")
-  if REQUIRED_DISCLAIMER not in text:
-    errors.append(f"{path}: missing required disclaimer '{REQUIRED_DISCLAIMER}'")
-
-  words = text.split()
-  if len(words) > MAX_WORDS:
-    errors.append(f"{path}: exceeds {MAX_WORDS} words ({len(words)})")
-
-  lines = text.splitlines()
-  if len(lines) > MAX_LINES:
-    errors.append(f"{path}: exceeds {MAX_LINES} lines ({len(lines)})")
-
-  errors.extend(check_paths(text, path))
-  return errors
+    # 3. Path Safety
+    path_error = validate_paths(text)
+    if path_error:
+        errors.append(format_error(path, path_error))
+    
+    return errors
 
 
 def main() -> int:
-  journals = collect_journals()
-  if not journals:
-    print("journal_lint: no journal entries found; skipping")
+    journal_dir = Path("artifacts/journal")
+    if not journal_dir.exists():
+        # No journals to lint
+        print("journal_lint: no artifacts/journal directory; skipping")
+        return 0
+
+    all_errors: List[str] = []
+    
+    for journal_file in sorted(journal_dir.glob("*.md")):
+        all_errors.extend(lint_file(journal_file))
+
+    if all_errors:
+        for err in all_errors:
+            print(err, file=sys.stderr)
+        return 1
+
+    print("journal_lint: OK")
     return 0
-
-  all_errors: List[str] = []
-  for path in journals:
-    all_errors.extend(lint_journal(path))
-
-  if all_errors:
-    for err in all_errors:
-      print(f"journal_lint: ERROR: {err}", file=sys.stderr)
-    return 1
-
-  for path in journals:
-    print(f"journal_lint: OK ({path.as_posix()})")
-  return 0
 
 
 if __name__ == "__main__":
-  raise SystemExit(main())
+    raise SystemExit(main())

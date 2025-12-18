@@ -201,5 +201,32 @@ class AggregateHistoryTests(unittest.TestCase):
         self.assertEqual(aggregate_history.main(["--output", "docs/exec/history.ndjson", "--check"]), 0)
 
 
+    def test_ingests_journals_and_generates_narrative(self):
+        # Create a journal file
+        Path("artifacts/journal").mkdir(parents=True)
+        (Path("artifacts/journal") / "run-j1.md").write_text(
+            "### Header\nContent for J1\n", encoding="utf-8"
+        )
+        
+        exit_code = aggregate_history.main([
+            "--output", "docs/exec/history.ndjson",
+            "--narrative", "docs/exec/deep-thoughts.md"
+        ])
+        
+        self.assertEqual(exit_code, 0)
+        
+        # Verify history record
+        history = [json.loads(l) for l in Path("docs/exec/history.ndjson").read_text(encoding="utf-8").splitlines()]
+        journal_rec = next(r for r in history if r["record_type"] == "journal")
+        self.assertEqual(journal_rec["timestamp"], "run-j1")
+        self.assertEqual(journal_rec["summary"], "Journal entry for run-j1")
+        self.assertEqual(journal_rec["evidence"], ["artifacts/journal/run-j1.md"])
+        
+        # Verify narrative
+        narrative = Path("docs/exec/deep-thoughts.md").read_text(encoding="utf-8")
+        assert "### Header" in narrative
+        assert "Content for J1" in narrative
+
+
 if __name__ == "__main__":
     unittest.main()

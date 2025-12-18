@@ -23,40 +23,68 @@ def test_emit_journal_with_artifacts(tmp_path, capsys):
         "# Walkthrough\n\n## Lessons Learned\n- Lesson 2\n- Lesson 1\n",
         encoding="utf-8",
     )
+    (run_dir / "post_verify_report.md").write_text(
+        "Run ID: ...\nStatus: finished\n",
+        encoding="utf-8",
+    )
 
-    path = journal.emit_journal(run_dir)
+    # Need to mock the journal output directory to be inside tmp_path, 
+    # but journal.py writes to hardcoded "artifacts/journal".
+    # We should probably chdir to tmp_path or mock cwd.
+    
+    cwd = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        path = journal.emit_journal(run_dir)
+    finally:
+        os.chdir(cwd)
 
-    assert path == run_dir / "journal.json"
-    data = json.loads(path.read_text())
-    assert data["run"] == "run-1"
-    assert list(data["artifacts"].keys()) == ["implementation_plan", "walkthrough"]
-    assert [item["id"] for item in data["artifacts"]["implementation_plan"]["items"]] == ["A", "B"]
-    assert data["artifacts"]["implementation_plan"]["items"][1]["evidence"] == ["1.md", "2.md"]
-    assert data["artifacts"]["walkthrough"]["lessons"] == ["Lesson 2", "Lesson 1"]
+    journal_path = tmp_path / "artifacts/journal/run-1.md"
+    assert path == Path("artifacts/journal/run-1.md")
+    
+    content = journal_path.read_text(encoding="utf-8")
+    assert "### Deep Thoughts, by an Agent" in content
+    assert "**Run run-1**" in content
+    assert "**Goal**: I set out to test 2 hypotheses, starting with 'B hyp'." in content
+    assert "**Outcome**: The run finished with status 'finished'." in content
+    assert "**Reflections**:" in content
+    assert "- Lesson 2" in content
+    assert "- Lesson 1" in content
+    assert "Editor’s note" in content
 
-    captured = capsys.readouterr()
-    assert "wrote journal" in captured.out
 
-
-def test_emit_journal_missing_sources(tmp_path, capsys):
+def test_emit_journal_missing_plan(tmp_path, capsys):
     run_dir = tmp_path / "docs/exec/runs/run-2"
     run_dir.mkdir(parents=True)
+    # No artifacts
 
-    path = journal.emit_journal(run_dir)
+    cwd = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        path = journal.emit_journal(run_dir)
+    finally:
+        os.chdir(cwd)
 
-    assert path is None
-    assert not (run_dir / "journal.json").exists()
-    captured = capsys.readouterr()
-    assert "nothing to journal" in captured.out
+    journal_path = tmp_path / "artifacts/journal/run-2.md"
+    assert path == Path("artifacts/journal/run-2.md")
+    
+    content = journal_path.read_text(encoding="utf-8")
+    assert "**Goal**: I had no plan, behaving purely reactively." in content
+    assert "**Reflections**:\n- I learned nothing specific this time." in content
 
 
-def test_main_invalid_plan_json(tmp_path, capsys):
-    run_dir = tmp_path / "docs/exec/runs/run-3"
-    run_dir.mkdir(parents=True)
-    (run_dir / "implementation_plan.json").write_text("{not-json", encoding="utf-8")
-
-    rc = journal.main([str(run_dir)])
-
-    captured = capsys.readouterr()
-    assert rc == 1
-    assert "invalid JSON" in captured.err
+def test_main_runs(tmp_path, capsys):
+    # Setup standard layout
+    runs_dir = tmp_path / "docs/exec/runs"
+    runs_dir.mkdir(parents=True)
+    (runs_dir / "run-3").mkdir()
+    
+    cwd = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        rc = journal.main([])
+    finally:
+        os.chdir(cwd)
+        
+    assert rc == 0
+    assert (tmp_path / "artifacts/journal/run-3.md").exists()

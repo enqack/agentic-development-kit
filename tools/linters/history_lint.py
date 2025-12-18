@@ -71,32 +71,53 @@ def lint_ndjson_file(path: Path) -> Tuple[List[str], Set[str], Set[str]]:
       errors.append(format_error(f"{path}:{lineno}: expected object, got {type(entry).__name__}"))
       continue
 
-    missing = sorted(REQUIRED_ENTRY_KEYS - entry.keys())
-    if missing:
-      errors.append(format_error(f"{path}:{lineno}: missing required keys: {', '.join(missing)}"))
-      continue
+    # record_type is strictly required now to differentiate validation
+    if "record_type" not in entry:
+        errors.append(format_error(f"{path}:{lineno}: missing required key: record_type"))
+        continue
+    
+    rtype = entry["record_type"]
+    if rtype not in {"hypothesis", "agenda", "journal"}:
+        errors.append(format_error(f"{path}:{lineno}: unknown record_type '{rtype}'"))
 
-    agenda_id = entry.get("agenda_id")
-    hypothesis_id = entry.get("hypothesis_id")
-    if not isinstance(agenda_id, str) or not AG_RE.fullmatch(agenda_id):
-      errors.append(format_error(f"{path}:{lineno}: agenda_id must match AG-######"))
+    # Common fields
+    if "timestamp" not in entry:
+         errors.append(format_error(f"{path}:{lineno}: missing required key: timestamp"))
+    elif not isinstance(entry["timestamp"], str) or not entry["timestamp"].strip():
+         errors.append(format_error(f"{path}:{lineno}: timestamp must be check non-empty string"))
+
+    if "summary" not in entry:
+        errors.append(format_error(f"{path}:{lineno}: missing required key: summary"))
+    elif not isinstance(entry["summary"], str) or not entry["summary"].strip():
+         errors.append(format_error(f"{path}:{lineno}: summary must be a non-empty string"))
+
+    if "evidence" not in entry:
+        errors.append(format_error(f"{path}:{lineno}: missing required key: evidence"))
     else:
-      agenda_ids.add(agenda_id)
+        errors.extend(validate_evidence_paths(entry.get("evidence"), f"{path}:{lineno}"))
 
-    if not isinstance(hypothesis_id, str) or not HYP_RE.fullmatch(hypothesis_id):
-      errors.append(format_error(f"{path}:{lineno}: hypothesis_id must match HYP-####"))
+    # Type-specific validation
+    if rtype == "journal":
+        # journals don't require IDs
+        pass
     else:
-      hyp_ids.add(hypothesis_id)
+        # standard records require IDs
+        agenda_id = entry.get("agenda_id")
+        hypothesis_id = entry.get("hypothesis_id")
 
-    summary = entry.get("summary")
-    if not isinstance(summary, str) or not summary.strip():
-      errors.append(format_error(f"{path}:{lineno}: summary must be a non-empty string"))
+        if "agenda_id" not in entry:
+             errors.append(format_error(f"{path}:{lineno}: missing required key: agenda_id"))
+        elif not isinstance(agenda_id, str) or not AG_RE.fullmatch(agenda_id):
+            errors.append(format_error(f"{path}:{lineno}: agenda_id must match AG-######"))
+        else:
+            agenda_ids.add(agenda_id)
 
-    timestamp = entry.get("timestamp")
-    if not isinstance(timestamp, str) or not timestamp.strip():
-      errors.append(format_error(f"{path}:{lineno}: timestamp must be a non-empty string"))
-
-    errors.extend(validate_evidence_paths(entry.get("evidence"), f"{path}:{lineno}"))
+        if "hypothesis_id" not in entry:
+             errors.append(format_error(f"{path}:{lineno}: missing required key: hypothesis_id"))
+        elif not isinstance(hypothesis_id, str) or not HYP_RE.fullmatch(hypothesis_id):
+            errors.append(format_error(f"{path}:{lineno}: hypothesis_id must match HYP-####"))
+        else:
+            hyp_ids.add(hypothesis_id)
 
   return errors, hyp_ids, agenda_ids
 

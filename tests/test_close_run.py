@@ -122,7 +122,7 @@ class TestCloseRun(unittest.TestCase):
         self.assertIsNotNone(datetime.datetime.fromisoformat(closure["closed_at"]).tzinfo)
         output = stdout.getvalue()
         self.assertIn("Generating journal artifact for the run", output)
-        self.assertIn("No journal entries produced (missing recognized artifacts)", output)
+        self.assertIn("Journal written to artifacts/journal/run-456.md", output)
         self.assertIn("Run run-456 closed successfully.", output)
 
     def test_main_generates_journal(self):
@@ -147,12 +147,12 @@ class TestCloseRun(unittest.TestCase):
                 rc = main()
 
         self.assertEqual(rc, 0)
-        journal_path = run_dir / "journal.json"
+        # artifacts/journal is at repo root. test_dir/artifacts/journal
+        journal_path = Path("artifacts/journal/run-789.md")
         self.assertTrue(journal_path.exists())
-        journal = json.loads(journal_path.read_text())
-        self.assertEqual(journal.get("run"), "run-789")
-        self.assertEqual([item["id"] for item in journal["artifacts"]["implementation_plan"]["items"]], ["A", "B"])
-        self.assertEqual(journal["artifacts"]["walkthrough"]["lessons"], ["Learned A", "Learned B"])
+        content = journal_path.read_text(encoding="utf-8")
+        self.assertIn("**Run run-789**", content)
+        self.assertIn("Learned A", content)
         self.assertIn("Journal written to", stdout.getvalue())
 
 if __name__ == "__main__":

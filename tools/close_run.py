@@ -5,7 +5,7 @@ import datetime
 from pathlib import Path
 from typing import Optional
 
-from journal import JournalError, emit_journal
+from journal import emit_journal
 
 def die(msg: str) -> int:
     print(f"close_run: ERROR: {msg}", file=sys.stderr)
@@ -98,10 +98,9 @@ def main() -> int:
         return die("missing implementation_plan.md")
 
     note("Generating journal artifact for the run…")
-    try:
-        journal_path = emit_journal(run_dir)
-    except JournalError as exc:
-        return die(f"journal generation failed: {exc}")
+    journal_path = emit_journal(run_dir)
+    if not journal_path:
+        note("journal generation failed or no artifacts found")
 
     if journal_path:
         note(f"Journal written to {journal_path}")

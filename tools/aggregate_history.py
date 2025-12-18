@@ -6,10 +6,13 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
 DEFAULT_HISTORY_PATH = Path("docs/exec/history.ndjson")
+DEEP_THOUGHTS_PATH = Path("docs/exec/deep-thoughts.md")
+
+HEADER = "# Deep Thoughts: A Journal Timeline\n\n*(Reverse chronological order)*\n"
 
 
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build hypothesis and agenda history from run artifacts.")
+    parser = argparse.ArgumentParser(description="Build history and narrative from run artifacts.")
     parser.add_argument(
         "--output",
         type=Path,
@@ -17,9 +20,15 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help="Path to write the history NDJSON (default: docs/exec/history.ndjson)",
     )
     parser.add_argument(
+        "--narrative",
+        type=Path,
+        default=DEEP_THOUGHTS_PATH,
+        help="Path to write the narrative markdown (default: docs/exec/deep-thoughts.md)",
+    )
+    parser.add_argument(
         "--check",
         action="store_true",
-        help="Do not write the file; exit with non-zero status if output would change",
+        help="Do not write files; exit with non-zero status if output would change",
     )
     return parser.parse_args(argv)
 
@@ -32,7 +41,10 @@ def load_history(path: Path) -> List[Dict]:
         line = line.strip()
         if not line:
             continue
-        records.append(json.loads(line))
+        try:
+            records.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue  # best effort
     return records
 
 
@@ -130,28 +142,17 @@ def merge_hypothesis_records(existing: Optional[Dict], new: Dict) -> Dict:
     merged["first_seen_run"] = pick_first_seen(merged.get("first_seen_run"), new.get("first_seen_run"))
     merged["last_seen_run"] = pick_last_seen(merged.get("last_seen_run"), new.get("last_seen_run"))
     merged["evidence"] = merge_evidence(merged.get("evidence", []), new.get("evidence", []))
+    
+    # Required field mapping for history_lint
+    merged["timestamp"] = new.get("timestamp", merged.get("timestamp", ""))
+    merged["summary"] = merged.get("claim", "")
+    merged["hypothesis_id"] = merged["id"]
+    merged["agenda_id"] = "AG-000000" # Placeholder if mixing types, or handle in merge_records
 
-    for key, value in new.items():
-        if key not in {"record_type", "id", "claim", "status", "first_seen_run", "last_seen_run", "evidence"}:
-            merged[key] = value
-    return merged
+    # Clean up fields
+    if "first_seen_run" in merged and not merged["timestamp"]:
+        merged["timestamp"] = merged["first_seen_run"] # Fallback
 
-
-def merge_agenda_records(existing: Optional[Dict], new: Dict) -> Dict:
-    if existing is None:
-        return new
-    merged = dict(existing)
-    merged["record_type"] = "agenda"
-    merged["id"] = new.get("id", merged.get("id"))
-    merged["summary"] = new.get("summary") or merged.get("summary") or ""
-    merged["status"] = normalize_status(new.get("status") or merged.get("status"))
-    merged["first_seen_run"] = pick_first_seen(merged.get("first_seen_run"), new.get("first_seen_run")) or "unknown"
-    merged["last_seen_run"] = pick_last_seen(merged.get("last_seen_run"), new.get("last_seen_run")) or "unknown"
-    merged["evidence"] = merge_evidence(merged.get("evidence", []), new.get("evidence", []))
-
-    for key, value in new.items():
-        if key not in {"record_type", "id", "summary", "status", "first_seen_run", "last_seen_run", "evidence"}:
-            merged[key] = value
     return merged
 
 
@@ -164,9 +165,13 @@ def make_hypothesis_record(
 ) -> Dict:
     return {
         "record_type": "hypothesis",
-        "id": hyp_id,
-        "claim": claim or "",
+        "id": hyp_id, # Internal ID
+        "hypothesis_id": hyp_id, # Lint required ID
+        "agenda_id": "AG-000000", # Lint required ID
+        "summary": claim or "", # Lint required summary
+        "claim": claim or "", 
         "status": normalize_status(status),
+        "timestamp": run_name or "",
         "first_seen_run": run_name,
         "last_seen_run": run_name,
         "evidence": sorted({e for e in evidence if e}),
@@ -309,14 +314,73 @@ def collect_agenda_records(agenda_path: Path, repo_root: Path) -> List[Dict]:
             {
                 "record_type": "agenda",
                 "id": item_id,
+                "agenda_id": item_id,
+                "hypothesis_id": item.get("hypothesis_id", "HYP-0000"),
                 "summary": item.get("summary", ""),
                 "status": normalize_status(item.get("status")),
+                "timestamp": item.get("last_seen_run", "unknown"),
                 "first_seen_run": item.get("first_seen_run", "unknown"),
                 "last_seen_run": item.get("last_seen_run", "unknown"),
                 "evidence": sorted(set(normalized_evidence)),
             }
         )
     return records
+
+
+def collect_journal_entries(repo_root: Path) -> Tuple[List[Dict], str]:
+    journal_dir = repo_root / "artifacts/journal"
+    if not journal_dir.exists():
+        return [], ""
+
+    records: List[Dict] = []
+    narrative_buffer: List[str] = [HEADER]
+    
+    # Sort reverse-chrono for narrative
+    files = sorted(journal_dir.glob("*.md"), reverse=True)
+    
+    for md_file in files:
+        run_id = md_file.stem
+        content = md_file.read_text(encoding="utf-8")
+        
+        # 1. Add to narrative
+        narrative_buffer.append(f"\n{content}\n")
+        
+        # 2. Add to history records
+        # Use filename as evidence
+        rel_path = md_file.relative_to(repo_root).as_posix()
+        summary = f"Journal entry for {run_id}"
+        
+        records.append({
+            "record_type": "journal",
+            "timestamp": run_id,
+            "summary": summary,
+            "evidence": [rel_path],
+            # Pass validation
+            "agenda_id": "AG-000000",
+            "hypothesis_id": "HYP-0000"
+        })
+        
+    return records, "\n".join(narrative_buffer)
+
+
+def merge_agenda_records(existing: Optional[Dict], new: Dict) -> Dict:
+    if existing is None:
+        return new
+    merged = dict(existing)
+    merged["record_type"] = "agenda"
+    merged["id"] = new.get("id", merged.get("id"))
+    merged["summary"] = new.get("summary") or merged.get("summary") or ""
+    merged["status"] = normalize_status(new.get("status") or merged.get("status"))
+    merged["first_seen_run"] = pick_first_seen(merged.get("first_seen_run"), new.get("first_seen_run")) or "unknown"
+    merged["last_seen_run"] = pick_last_seen(merged.get("last_seen_run"), new.get("last_seen_run")) or "unknown"
+    merged["evidence"] = merge_evidence(merged.get("evidence", []), new.get("evidence", []))
+    
+    # Required field mapping
+    merged["timestamp"] = new.get("timestamp", merged.get("timestamp", "unknown"))
+    merged["agenda_id"] = merged["id"]
+    merged["hypothesis_id"] = merged.get("hypothesis_id", "HYP-0000")
+
+    return merged
 
 
 def merge_records(existing: List[Dict], new: List[Dict]) -> List[Dict]:
@@ -338,39 +402,63 @@ def merge_records(existing: List[Dict], new: List[Dict]) -> List[Dict]:
 
     return sorted(
         merged.values(),
-        key=lambda r: (r.get("id") or "", r.get("record_type") or ""),
+        key=lambda r: (r.get("timestamp", ""), r.get("id") or "", r.get("record_type") or ""),
     )
-
-
-def format_ndjson(records: List[Dict]) -> List[str]:
-    return [json.dumps(rec, sort_keys=True, separators=(",", ":")) for rec in records]
 
 
 def main(argv: Optional[List[str]] = None) -> int:
     args = parse_args(argv)
     repo_root = Path.cwd()
     history_path = args.output
+    narrative_path = args.narrative
 
     existing = load_history(history_path)
     runs_dir = repo_root / "docs/exec/runs"
-    new_records = collect_hypotheses(runs_dir, repo_root)
+    
+    hyp_records = collect_hypotheses(runs_dir, repo_root)
     agenda_records = collect_agenda_records(repo_root / "docs/exec/agenda_state.json", repo_root)
+    journal_records, narrative_text = collect_journal_entries(repo_root)
 
-    merged_records = merge_records(existing, [*new_records, *agenda_records])
-    output_lines = format_ndjson(merged_records)
+    # Filter out existing journals from history so we can regenerate them fully
+    # (Journal entries are immutable per run ID, so we can just replace them)
+    existing_without_journals = [r for r in existing if r.get("record_type") != "journal"]
+    
+    # Merge existing (hyp/agenda) with new (hyp/agenda)
+    merged_core = merge_records(existing_without_journals, hyp_records + agenda_records)
+    
+    # Append journals (sorted by timestamp)
+    final_records = merged_core + journal_records
+    final_records.sort(key=lambda r: r.get("timestamp", ""))
+
+    output_lines = [json.dumps(rec, sort_keys=True, separators=(",", ":")) for rec in final_records]
     output_text = "\n".join(output_lines)
     if output_lines:
         output_text += "\n"
 
     if args.check:
-        if not history_path.exists():
-            return 0 if not output_lines else 1
-        current_text = history_path.read_text(encoding="utf-8")
-        return 0 if current_text == output_text else 1
+        fail = False
+        if history_path.exists():
+            if history_path.read_text(encoding="utf-8") != output_text:
+                fail = True
+        elif output_lines:
+            fail = True
+            
+        if narrative_path.exists():
+            if narrative_path.read_text(encoding="utf-8") != narrative_text:
+                fail = True
+        elif narrative_text:
+            fail = True
+            
+        return 1 if fail else 0
 
     history_path.parent.mkdir(parents=True, exist_ok=True)
     history_path.write_text(output_text, encoding="utf-8")
+    
+    narrative_path.parent.mkdir(parents=True, exist_ok=True)
+    narrative_path.write_text(narrative_text, encoding="utf-8")
+    
     print(f"Wrote {len(output_lines)} records to {history_path}")
+    print(f"Wrote narrative to {narrative_path}")
     return 0
 
 

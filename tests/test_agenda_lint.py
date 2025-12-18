@@ -1,5 +1,10 @@
 from pathlib import Path
 
+import os
+import sys
+
+# Add linters to path
+sys.path.append(os.path.abspath("tools/linters"))
 import agenda_lint
 
 
