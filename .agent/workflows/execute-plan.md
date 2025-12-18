@@ -13,14 +13,10 @@ artifacts_required:
 Precondition:
 - `docs/intent/project_intent.md` exists and reflects the repo's purpose.
 
-If precondition is not met, fail closed and run `establish-intent`.
-
-## Inputs
-
-- `docs/exec/runs/<run-id>/implementation_plan.md`
-- `docs/exec/runs/<run-id>/implementation_plan.json`
-
-If inputs are missing, fail closed.
+If precondition is not met:
+- fail closed (panic) and immediately initiate `establish-intent` by asking the canonical intent question.
+- write `docs/intent/project_intent.md`
+- then continue with `/execute-plan`
 
 ## Verification (recommended default)
 

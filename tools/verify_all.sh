@@ -25,6 +25,11 @@ if [ -f tools/workflow_intent_lint.py ]; then
   run_log "workflow_intent_lint" python3 tools/workflow_intent_lint.py
 fi
 
+# Panic messaging style enforcement (no override prompts)
+if [ -f tools/panic_style_lint.py ]; then
+  run_log "panic_style_lint" python3 tools/panic_style_lint.py
+fi
+
 # Intent must exist for any real work. (Fail closed.)
 if [ -f tools/intent_lint.py ]; then
   run_log "intent_lint" python3 tools/intent_lint.py

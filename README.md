@@ -4,48 +4,19 @@ A language-agnostic repository template for **planning → execution → verific
 
 The project inside the repo may be software, writing, research, art, or mixed. The workflow system uses Python as a **verification runtime only** (to run `tools/*.py`).
 
-## First run checklist
+## First run
 
-1. **Establish intent (required)**
-   - Run: `/establish-intent`
-   - Output: `docs/intent/project_intent.md`
+Run:
 
-2. **Verify agenda**
-   - Run: `/verify-agenda`
-   - Output: agenda quality checks and a plan-ready state
+- `/establish-intent`
 
-3. **Plan**
-   - Run: `/plan-execution`
-   - Outputs:
-     - `docs/exec/runs/<run-id>/implementation_plan.md`
-     - `docs/exec/runs/<run-id>/implementation_plan.json`
+This creates `docs/intent/project_intent.md`, which is required before planning or execution.
 
-4. **Execute**
-   - Run: `/execute-plan`
-   - Outputs:
-     - `docs/exec/runs/<run-id>/walkthrough.md`
-     - evidence under `artifacts/`
+## Panic / fail-closed behavior
 
-5. **Verify + reconcile**
-   - Run: `/post-verify` and `/post-execution-review`
-   - Outputs:
-     - `artifacts/logs/post_verify_report.md`
-     - `docs/exec/lessons-learned.md`
-
-## Intent: global + mechanical enforcement
-
-This template is intentionally “fool-resistant”:
-
-- **Global rule (policy):**
-  - Until `docs/intent/project_intent.md` exists, the only permitted workflow is `establish-intent`.
-
-- **Mechanical rule (lint):**
-  - Every workflow (except `establish-intent`) must reference `docs/intent/project_intent.md` as a precondition/artifact requirement.
-  - Enforced by `tools/workflow_intent_lint.py` (runs in `tools/verify_all.sh` and CI).
+If you invoke a workflow that requires intent (e.g., `/plan-execution`) before intent exists, the agent MUST fail closed and immediately ask the canonical intent question, write the intent file, and then resume the requested workflow. No override prompts.
 
 ## Verification runtime
-
-Install verification tooling (optional but recommended):
 
 ```sh
 python3 -m venv .venv
@@ -64,5 +35,3 @@ tools/verify_all.sh
 Project tests are defined in:
 
 - `tools/test.sh`
-
-Edit it to run your project’s tests deterministically (Go/Rust/Node/Python examples included).
