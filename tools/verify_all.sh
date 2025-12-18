@@ -58,6 +58,9 @@ fi
 if [ -f tools/linters/evidence_location_lint.py ]; then
   run_log "evidence_location_lint" python3 tools/linters/evidence_location_lint.py
 fi
+if [ -f tools/linters/content_lint.py ]; then
+  run_log "content_lint" python3 tools/linters/content_lint.py
+fi
 
 # Plan lint: validate run-dir plan if present, else root
 if [ -f tools/linters/plan_lint.py ]; then
