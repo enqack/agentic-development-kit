@@ -1,7 +1,10 @@
 # Agenda
 
 ## Active Hypotheses
-- None
+- [ ] ID: HYP-0001
+  Status: not-started
+  Summary:
+  Evidence:
 
 ## Blockers
 - None
