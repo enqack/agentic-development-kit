@@ -9,7 +9,7 @@ destructive operations, and agent behaviors that conflict with workspace policie
 > enforced OS permissions. Always pair them with human review and environment
 > isolation.
 
----
+______________________________________________________________________
 
 ## 1) Treat Workspace Boundaries as Policy, Not Security
 
@@ -18,19 +18,20 @@ destructive operations, and agent behaviors that conflict with workspace policie
   repository (`git init`) or explicitly added via the IDE workspace UI.
 - Avoid symbolic links from the workspace to sensitive directories.
 
----
+______________________________________________________________________
 
 ## 2) Restrict Terminal and Command Execution
 
 Antigravity agents may execute terminal commands.
 
 Recommended configuration:
+
 - Disable automatic terminal execution.
 - Require manual approval for all command execution.
 - Maintain a deny list for destructive commands such as:
   - `rm`, `rmdir`, `del`, `sudo`, `curl`, `wget`
 
----
+______________________________________________________________________
 
 ## 3) Prefer Dedicated Agent Context Exclusion
 
@@ -40,31 +41,34 @@ Do not rely on `.gitignore` alone.
 - Treat ignore files as *context filters*, not permission systems.
 
 Example `.aiexclude`:
-```
+
+```text
 secrets.json
 *.key
 .env
 ```
 
----
+______________________________________________________________________
 
 ## 4) Enforce Human Review
 
 Configure the IDE to require confirmation before:
+
 - Writing files outside expected directories
 - Running commands with filesystem side effects
 - Modifying configuration or security-sensitive files
 
----
+______________________________________________________________________
 
 ## 5) Use Isolated Environments
 
 For maximum safety:
+
 - Run Antigravity inside a container or virtual machine
 - Mount only the project workspace into the environment
 - Avoid running agents on hosts with sensitive data
 
----
+______________________________________________________________________
 
 ## 6) Audit Agent Activity
 
@@ -72,18 +76,19 @@ For maximum safety:
 - Inspect generated artifacts for unexpected access
 - Do not assume ignore rules fully prevent access
 
----
+______________________________________________________________________
 
 ## 7) Safe Mode Checklist
 
 - Workspace access enabled
 - Non-workspace access disabled
 - Terminal auto-execution disabled
-- `.aiexclude` configured (the template ships one that fences off `.agent/`, `tools/`, and run artifacts)
+- `.aiexclude` configured (the template ships one that fences off `.agent/`,
+  `tools/`, and run artifacts)
 - Human approval required for risky actions
 - Prefer container or VM execution
 
----
+______________________________________________________________________
 
 ## Disclaimer
 

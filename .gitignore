@@ -29,6 +29,9 @@ artifacts/logs/*
 artifacts/test_results/*
 artifacts/diffs/*
 !artifacts/**/.gitkeep
+!artifacts/logs/agent_mode.json
+!artifacts/agent_activity.jsonl
+!artifacts/logs/post_verify_report.md
 
 docs/exec/runs/*
 !docs/exec/runs/.gitkeep

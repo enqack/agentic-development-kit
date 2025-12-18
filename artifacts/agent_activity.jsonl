@@ -1,0 +1,2 @@
+{"ts": "2025-12-18T22:08:54.764060Z", "actor": "sysop", "intent": "verify_schema", "scope": "ADK", "action": "test", "result": "ok", "evidence": ["tools/cvr/log_action.py"], "mode": "normal"}
+{"ts": "2025-12-18T22:11:18.507970Z", "actor": "sysop", "intent": "verify_schema", "scope": "agentic-development-kit", "action": "test", "result": "ok", "evidence": ["tools/cvr/log_action.py"], "mode": "normal"}

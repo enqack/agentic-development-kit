@@ -26,6 +26,7 @@ This is a **state toggle only**. It does not stage/commit/push anything, and it 
 Maintain exactly one state file:
 
 - `artifacts/logs/agent_mode.json`
+- `artifacts/agent_activity.jsonl` (append-only ledger)
 
 Schema:
 
@@ -41,11 +42,13 @@ Schema:
 
 - If `state: on`:
   - write the state file with `"mode": "maintenance"`.
+  - run `python3 tools/cvr/log_action.py --intent toggle_maintenance_mode --action toggle --scope agent_mode --result ok --evidence artifacts/logs/agent_mode.json`
 - If `state: off`:
-  - write the state file with `"mode": "normal"` (do not delete the file; keep an audit trail).
+  - write the state file with `"mode": "normal"`.
+  - run `python3 tools/cvr/log_action.py --intent toggle_maintenance_mode --action toggle --scope agent_mode --result ok --evidence artifacts/logs/agent_mode.json`
 - If `state: toggle`:
-  - if current mode is `maintenance`, switch to `normal`.
-  - otherwise switch to `maintenance`.
+  - if current mode is `maintenance`, switch to `normal` and log action.
+  - otherwise switch to `maintenance` and log action.
 
 ### Continuous notification requirement
 
@@ -66,7 +69,7 @@ The banner is required even in audit-only replies.
 ## Steps
 
 1. Read `artifacts/intent/project_intent.md` (precondition consistency check).
-2. Read current `artifacts/logs/agent_mode.json` if it exists; otherwise assume `"normal"`.
-3. Apply Transition rules, writing the updated state file.
-4. Echo the new mode + timestamp + reason (if provided) to the operator.
-5. Stop.
+1. Read current `artifacts/logs/agent_mode.json` if it exists; otherwise assume `"normal"`.
+1. Apply Transition rules, writing the updated state file.
+1. Echo the new mode + timestamp + reason (if provided) to the operator.
+1. Stop.

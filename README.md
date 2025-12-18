@@ -7,31 +7,40 @@ The project inside the repo may be software, writing, research, art, or mixed. T
 ## Features
 
 ### 🧠 Deep Thoughts Journal
+
 Automated, narrative reconstruction of every run.
+
 - **Narrative**: `artifacts/journal/<run-id>.md` (Theatrical, deterministic summary of Goal, Outcome, and Reflections).
 - **Timeline**: `docs/exec/deep-thoughts.md` (Reverse-chronological compilation of all journals).
 
 ### 📜 Unified History
+
 Chronological event log merging hypotheses, agenda items, and journal entries.
+
 - **Data**: `docs/exec/history.ndjson`
 - **Updates**: Automatically aggregated via `tools/aggregate_history.py`.
 
 ### 🛡️ Verification Suite
+
 Comprehensive tooling to ensure process integrity.
+
 - **Linters**: Enforce schema compliance for journals, history, and plans (`tools/linters/*.py`).
 - **Runner**: `tools/verify_all.sh` runs all linters and project tests.
 
 ## Workflow
 
 ### 1. Initialize
+
 Run `/establish-intent` to define `docs/intent/project_intent.md`.
 
 ### 2. Plan & Execute
+
 Follow the standard loop:
-1.  **Plan**: `/plan-execution` (Generate `implementation_plan.md`)
-2.  **Execute**: (Write code)
-3.  **Verify**: `tools/verify_all.sh`
-4.  **Close**: `python3 tools/close_run.py <run-id>` (Generates journal)
+
+1. **Plan**: `/plan-execution` (Generate `implementation_plan.md`)
+1. **Execute**: (Write code)
+1. **Verify**: `tools/verify_all.sh`
+1. **Close**: `python3 tools/close_run.py <run-id>` (Generates journal)
 
 ## Verification runtime
 
