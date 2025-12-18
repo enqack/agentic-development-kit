@@ -1,5 +1,13 @@
 # Lessons Learned
 
+This file records durable, reusable lessons discovered during work in this repository.
+
+Rules:
+- Every entry MUST include an `Evidence:` line with repo-relative paths.
+- Do NOT use absolute paths.
+- Do NOT use `file://` URLs.
+- Do NOT truncate evidence pointers with `...`.
+
 ## Template
 
 ### YYYY-MM-DD — <summary>
@@ -8,4 +16,4 @@
 - Surprises:
 - Changes to make next time:
 - Follow-ups (new agenda items):
-- Evidence: walkthrough.md#..., artifacts/..., artifacts/logs/post_verify_report.md#...
+- Evidence: docs/exec/runs/<run-id>/walkthrough.md, artifacts/logs/post_verify_report.md
