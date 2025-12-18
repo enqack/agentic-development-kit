@@ -20,6 +20,11 @@ if [ -f tools/template_baseline_lint.py ]; then
   run_log "template_baseline_lint" python3 tools/template_baseline_lint.py
 fi
 
+# Mechanical enforcement: workflows must require intent (except establish-intent)
+if [ -f tools/workflow_intent_lint.py ]; then
+  run_log "workflow_intent_lint" python3 tools/workflow_intent_lint.py
+fi
+
 # Intent must exist for any real work. (Fail closed.)
 if [ -f tools/intent_lint.py ]; then
   run_log "intent_lint" python3 tools/intent_lint.py
