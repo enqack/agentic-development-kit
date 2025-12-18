@@ -12,9 +12,10 @@ Precondition:
 - `docs/intent/project_intent.md` exists.
 
 If precondition is not met:
-- fail closed (panic) and immediately initiate `establish-intent` by asking the canonical intent question.
+- fail closed (panic) and immediately initiate `establish-intent` by asking:
+  - "What are you trying to produce in this repo (software, book, research notes, something else), and what does 'done' look like for the first milestone?"
 - write `docs/intent/project_intent.md`
-- then continue with `/post-execution-review`
+- then continue with the requested workflow
 
 Inputs:
 - `docs/exec/runs/<run-id>/walkthrough.md`
