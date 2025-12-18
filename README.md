@@ -42,3 +42,7 @@ tools/verify_all.sh
 Project tests are defined in:
 
 - `tools/test.sh`
+
+## Optional history
+
+You can maintain a structured history that captures major runs, decisions, and reconciliations. Regenerate it from the current artifacts with `python update_history.py`, keep the formatting tidy with `python history_lint.py`, and sanity-check the output with `./history_check.sh`.

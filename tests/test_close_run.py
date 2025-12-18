@@ -2,9 +2,13 @@ import unittest
 import tempfile
 import shutil
 import json
+import datetime
 from pathlib import Path
 import sys
 import os
+from io import StringIO
+from contextlib import redirect_stdout, redirect_stderr
+from unittest.mock import patch
 
 # We need to import close_run, but it depends on file system structure.
 # We'll test the extraction and update logic primarily.
@@ -12,7 +16,7 @@ import os
 # Mocking the imports or using subprocess might be better for full E2E, 
 # but let's try to import functions first.
 sys.path.append(os.path.abspath("tools"))
-from close_run import extract_lessons, update_global_lessons
+from close_run import extract_lessons, update_global_lessons, main
 
 class TestCloseRun(unittest.TestCase):
     def setUp(self):
@@ -71,6 +75,52 @@ class TestCloseRun(unittest.TestCase):
         self.assertEqual(added, 1)
         self.assertEqual(content.count("Old Lesson"), 1)
         self.assertIn("- New Lesson (from [new_run](runs/new_run/walkthrough.md))", content)
+
+    def test_main_no_runs(self):
+        with patch.object(sys, "argv", ["close_run"]):
+            stdout = StringIO()
+            stderr = StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                rc = main()
+        self.assertEqual(rc, 1)
+        self.assertIn("close_run: ERROR: no runs found", stderr.getvalue())
+
+    def test_main_missing_plan(self):
+        run_dir = Path("docs/exec/runs/run-123")
+        run_dir.mkdir(parents=True)
+
+        with patch.object(sys, "argv", ["close_run", "run-123"]):
+            stdout = StringIO()
+            stderr = StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                rc = main()
+
+        self.assertEqual(rc, 1)
+        self.assertIn("close_run: Closing run: run-123", stdout.getvalue())
+        self.assertIn("close_run: ERROR: missing implementation_plan.md", stderr.getvalue())
+
+    def test_main_success_writes_closure(self):
+        run_dir = Path("docs/exec/runs/run-456")
+        run_dir.mkdir(parents=True)
+        (run_dir / "implementation_plan.md").write_text("# plan", encoding="utf-8")
+
+        with patch.object(sys, "argv", ["close_run"]):
+            stdout = StringIO()
+            stderr = StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                rc = main()
+
+        self.assertEqual(rc, 0)
+        closure_path = run_dir / "closure.json"
+        self.assertTrue(closure_path.exists())
+        closure = json.loads(closure_path.read_text())
+
+        for key in ("closed_at", "final_status", "lessons_extracted", "lessons_added"):
+            self.assertIn(key, closure)
+
+        self.assertEqual(closure["final_status"], "closed")
+        self.assertIsNotNone(datetime.datetime.fromisoformat(closure["closed_at"]).tzinfo)
+        self.assertIn("Run run-456 closed successfully.", stdout.getvalue())
 
 if __name__ == "__main__":
     unittest.main()
