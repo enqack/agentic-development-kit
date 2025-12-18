@@ -47,12 +47,30 @@ class TestCloseRun(unittest.TestCase):
         global_dir.mkdir(parents=True)
         
         lessons = ["New Lesson"]
-        update_global_lessons(lessons, "test_run")
+        added = update_global_lessons(lessons, "test_run")
         
         f = global_dir / "lessons-learned.md"
         self.assertTrue(f.exists())
         content = f.read_text()
+        self.assertEqual(added, 1)
         self.assertIn("- New Lesson (from [test_run](runs/test_run/walkthrough.md))", content)
+
+    def test_update_global_lessons_dedup(self):
+        global_dir = Path("docs/exec")
+        global_dir.mkdir(parents=True)
+
+        existing = global_dir / "lessons-learned.md"
+        existing.write_text(
+            "# Lessons Learned\n\n- Old Lesson (from [old_run](runs/old_run/walkthrough.md))\n",
+            encoding="utf-8",
+        )
+
+        added = update_global_lessons(["Old Lesson", "New Lesson"], "new_run")
+
+        content = existing.read_text()
+        self.assertEqual(added, 1)
+        self.assertEqual(content.count("Old Lesson"), 1)
+        self.assertIn("- New Lesson (from [new_run](runs/new_run/walkthrough.md))", content)
 
 if __name__ == "__main__":
     unittest.main()

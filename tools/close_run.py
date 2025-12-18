@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 import sys
-import shutil
 import json
 import datetime
-import re
 from pathlib import Path
 from typing import Optional
 
@@ -45,9 +43,14 @@ def extract_lessons(run_dir: Path) -> list:
             
     return lessons
 
-def update_global_lessons(lessons: list, run_name: str):
+def update_global_lessons(lessons: list, run_name: str) -> int:
+    """Append unique lessons to docs/exec/lessons-learned.md.
+
+    Returns:
+        Number of lessons added to the global file.
+    """
     if not lessons:
-        return
+        return 0
         
     global_file = Path("docs/exec/lessons-learned.md")
     
@@ -57,17 +60,21 @@ def update_global_lessons(lessons: list, run_name: str):
         
     content = global_file.read_text(encoding="utf-8")
     
-    new_content = ""
+    new_entries = []
     for lesson in lessons:
         # Avoid duplicates
         if lesson in content:
             continue
-        new_content += f"- {lesson} (from [{run_name}](runs/{run_name}/walkthrough.md))\n"
+        new_entries.append(f"- {lesson} (from [{run_name}](runs/{run_name}/walkthrough.md))\n")
         
-    if new_content:
-        with open(global_file, "a") as f:
-            f.write(new_content)
-        note(f"Added {len(lessons)} lessons to {global_file}")
+    if new_entries:
+        with open(global_file, "a", encoding="utf-8") as f:
+            f.writelines(new_entries)
+        note(f"Added {len(new_entries)} lessons to {global_file}")
+    else:
+        note(f"No new lessons to add to {global_file}")
+
+    return len(new_entries)
 
 def main() -> int:
     if len(sys.argv) > 1:
@@ -90,8 +97,9 @@ def main() -> int:
     
     # 2. Extract and promote lessons
     lessons = extract_lessons(run_dir)
+    added_lessons = 0
     if lessons:
-        update_global_lessons(lessons, run_name)
+        added_lessons = update_global_lessons(lessons, run_name)
     else:
         note("No lessons extraction found in walkthrough.md (section 'Lessons Learned')")
 
@@ -99,7 +107,8 @@ def main() -> int:
     closure = {
         "closed_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "final_status": "closed",
-        "lessons_extracted": len(lessons)
+        "lessons_extracted": len(lessons),
+        "lessons_added": added_lessons
     }
     
     with open(run_dir / "closure.json", "w") as f:
