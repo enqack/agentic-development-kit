@@ -22,7 +22,7 @@ jobs:
           python -m pip install -r requirements-verify.txt
 
       - name: Gate evidence on code changes
-        run: bash tools/require_evidence_if_code_changed.sh
+        run: bash tools/cvr/require_evidence_if_code_changed.sh
 
       - name: Verify all (lints + tests when available)
         run: bash tools/verify_all.sh
