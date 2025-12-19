@@ -93,4 +93,24 @@ else
   echo "Preserving artifacts/intent/project_intent.md (use --include-intent to wipe)."
 fi
 
+# 8. Reset AGENDA.md
+echo "Resetting AGENDA.md..."
+cat > AGENDA.md <<EOF
+# Agenda
+
+**Status**: Active
+
+## Active Hypotheses
+
+- None.
+
+## Blockers
+
+- None.
+
+## Deferred Risks
+
+- None.
+EOF
+
 echo "Factory reset complete. Artifacts are clean."
