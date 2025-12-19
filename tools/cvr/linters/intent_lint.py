@@ -43,21 +43,21 @@ def parse_frontmatter(txt: str) -> dict[str, str]:
 def main() -> int:
   p = paths.PROJECT_INTENT
   if not p.exists():
-    return die("missing artifacts/intent/project_intent.md (run establish-intent first)")
+    return die("intent_lint", "missing artifacts/intent/project_intent.md (run establish-intent first)")
 
   txt = p.read_text(encoding="utf-8")
   fm = parse_frontmatter(txt)
   if not fm:
-    return die("project_intent.md missing YAML frontmatter (--- ... ---)")
+    return die("intent_lint", "project_intent.md missing YAML frontmatter (--- ... ---)")
 
   required = ["primary_domain", "deliverable", "first_milestone_done", "constraints", "non_goals"]
   missing = [k for k in required if k not in fm or fm[k] == ""]
   if missing:
-    return die("project_intent.md missing required keys: " + ", ".join(missing))
+    return die("intent_lint", "project_intent.md missing required keys: " + ", ".join(missing))
 
   dom = fm["primary_domain"]
   if dom not in ALLOWED:
-    return die(f"primary_domain must be one of {sorted(ALLOWED)}, got '{dom}'")
+    return die("intent_lint", f"primary_domain must be one of {sorted(ALLOWED)}, got '{dom}'")
 
   print("intent_lint: OK")
   return 0
