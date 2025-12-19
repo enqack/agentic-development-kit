@@ -27,4 +27,4 @@ Unified entry point for closing a development cycle. It ensures the repository i
 
 1. **Format Documentation**
 
-   - Run `python3 tools/format_md.py` to ensure all artifacts and history files are perfectly formatted.
+   - Run `python3 tools/cvr/format_md.py` to ensure all artifacts and history files are perfectly formatted.

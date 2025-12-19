@@ -7,7 +7,7 @@ from unittest.mock import patch
 from pathlib import Path
 
 # Add linters to path
-sys.path.append(os.path.abspath("tools/linters"))
+sys.path.append(os.path.abspath("tools/cvr/linters"))
 import plan_lint
 
 class TestPlanLint(unittest.TestCase):
@@ -77,7 +77,7 @@ class TestPlanLint(unittest.TestCase):
         with TemporaryDirectory() as tmp_dir:
             os.chdir(tmp_dir)
             p = Path("implementation_plan.json")
-            p.write_text(json.dumps({"meta": {"version": "1.0", "generated_at": "now", "operating_mode": "full-execution"}, "items": [
+            p.write_text(json.dumps({"meta": {"version": "1.0", "generated_at": "now", "operating_mode": "full-execution"}, "relevant_lessons": ["none"], "items": [
                 {
                     "id": "HYP-0001",
                     "status": "proposed",
@@ -102,7 +102,7 @@ class TestPlanLint(unittest.TestCase):
             run = Path("artifacts/history/runs/run-1")
             run.mkdir(parents=True)
             (run / "implementation_plan.json").write_text(
-                json.dumps({"meta": {"version": "1.0", "generated_at": "now", "operating_mode": "full-execution"}, "items": [
+                json.dumps({"meta": {"version": "1.0", "generated_at": "now", "operating_mode": "full-execution"}, "relevant_lessons": ["none"], "items": [
                     {
                         "id": "HYP-0002",
                         "status": "proposed",

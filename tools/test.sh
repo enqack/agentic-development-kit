@@ -14,6 +14,12 @@ set -euo pipefail
 
 mkdir -p artifacts/test_results
 
+# Check for and source local virtual environment
+if [ -f .venv/bin/activate ]; then
+  source .venv/bin/activate
+fi
+
+
 if [ -f go.mod ]; then
   echo "tools/test.sh: detected Go (go.mod) -> go test ./..."
   go test ./... | tee artifacts/test_results/go_test_output.txt
@@ -49,7 +55,7 @@ if [ -d tests ] && command -v python3 >/dev/null 2>&1; then
   fi
   
   echo "tools/test.sh: detected Python tests -> unittest"
-  python3 -m unittest discover -s tests -p "test*.py" | tee artifacts/test_results/unittest_output.txt
+  PYTHONPATH=tools/cvr:tools/cvr/linters python3 -m unittest discover -s tests -p "test*.py" | tee artifacts/test_results/unittest_output.txt
   exit 0
 fi
 

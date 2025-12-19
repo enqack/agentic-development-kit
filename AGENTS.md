@@ -21,6 +21,7 @@ The Runtime MUST make **no assumptions** about the User Project's language, fram
 
 - Lifecycle supervision (Plan -> Execute -> Verify -> Close)
 - Deterministic state transitions (History aggregation, Journal generation)
+- Narrative reconstruction (Deep Thoughts timeline)
 - Local metrics and artifact hygiene
 - No project-specific logic
 
@@ -76,6 +77,7 @@ ______________________________________________________________________
 - **Non-trivial work**: Any task that changes system behavior, contracts, architecture, or failure modes.
 - **Intent**: The top-level definition of "done", stored in `artifacts/intent/project_intent.md`.
 - **Journal**: A deterministic narrative summary of a Run.
+- **Deep Thoughts**: A narrative reconstruction derived from run artifacts, intended to illustrate a deterministic decision process rather than serve as a primary source of truth.
 - **History**: The immutable sequence of all Runs and their metadata.
 
 Examples of non-trivial work:
@@ -155,7 +157,7 @@ ______________________________________________________________________
 
 All non-trivial work MUST follow this loop:
 
-1. **Perceive** – Inspect current state and context
+1. **Perceive** – Inspect current state, context, and **lessons learned**
 1. **Plan** – Produce `artifacts/history/runs/<run-id>/implementation_plan.md`
 1. **Act** – Apply changes (only in `full-execution` mode)
 1. **Prove or Falsify** – Execute `tools/verify_all.sh`
@@ -218,6 +220,7 @@ artifacts/
 │   └── project_intent.md
 ├── history/
 │   ├── history.md
+│   ├── deep-thoughts.md
 │   └── runs/
 │       └── <run-id>/
 │           ├── implementation_plan.md

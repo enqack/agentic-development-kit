@@ -14,7 +14,7 @@ Run this workflow when creating or modifying significant Markdown documentation.
 
 1. **Format**
 
-   - Run `python3 tools/format_md.py`
+   - Run `python3 tools/cvr/format_md.py`
    - If it fails, check `tools/check_tools.sh` and resolve dependencies.
 
 1. **Verify Structure**

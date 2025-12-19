@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ -f .venv/bin/activate ]; then
+  source .venv/bin/activate
+fi
+
 # Add linters and CVR directories to Python path
 if [ -d tools/cvr ]; then
   export PYTHONPATH="${PYTHONPATH:-}:$(pwd)/tools/cvr:$(pwd)/tools/cvr/linters"

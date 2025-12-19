@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import List, Set, Tuple
 
 import jsonschema
+
 from lint_common import validate_paths
 
 def load_history_schema() -> dict:
@@ -184,6 +185,7 @@ def main() -> int:
   if not HISTORY_DIR.exists():
     print("history_lint: history directory not found; skipping")
     return 0
+
 
   all_errors: List[str] = []
   hyp_ids: Set[str] = set()

@@ -6,6 +6,8 @@ set -euo pipefail
 
 FORCE=false
 INCLUDE_INTENT=false
+DRY_RUN=false
+VERBOSE=false
 
 # Parse arguments
 for arg in "$@"; do
@@ -18,82 +20,115 @@ for arg in "$@"; do
       INCLUDE_INTENT=true
       shift
       ;;
+    --dry-run|-n)
+      DRY_RUN=true
+      shift
+      ;;
+    --verbose|-v)
+      VERBOSE=true
+      shift
+      ;;
     *)
-      # Unknown options are ignored or could be handled
+      # Shift handled args via case, but simple loop doesn't handle values well if strict.
+      # For simple flags this works.
       ;;
   esac
 done
 
-if [ "$FORCE" != "true" ]; then
+if [ "$FORCE" != "true" ] && [ "$DRY_RUN" != "true" ]; then
   echo "ERROR: This tool is destructive. You must pass --force to run it."
-  echo "Usage: ./tools/factory_reset.sh --force [--include-intent]"
+  echo "Usage: ./tools/factory_reset.sh --force [--include-intent] [--dry-run] [--verbose]"
   echo "  --include-intent: Also delete artifacts/intent/project_intent.md"
+  echo "  --dry-run, -n   : Show what would be deleted without doing it"
+  echo "  --verbose, -v   : Verbose output"
   exit 1
 fi
 
-echo "WARNING: initiating FACTORY RESET. All history will be lost."
-
-# 1. Clear history
-echo "Cleaning artifacts/history..."
-if [ -d "artifacts/history" ]; then
-  # Delete all files in history root (history.md, history.ndjson, etc.)
-  find artifacts/history -maxdepth 1 -type f -delete
-  # Delete runs content
-  if [ -d "artifacts/history/runs" ]; then
-     find artifacts/history/runs -mindepth 1 -delete
-     touch artifacts/history/runs/.gitkeep
+log() {
+  if [ "$VERBOSE" = "true" ] || [ "$DRY_RUN" = "true" ]; then
+    echo "$@"
   fi
-  # Re-touch .gitkeep in history if needed (though we only deleted files)
+}
+
+# Helper to remove files/dirs
+clean_path() {
+  local path="$1"
+  local description="$2"
+
+  if [ -e "$path" ]; then
+    if [ "$DRY_RUN" = "true" ]; then
+      log "[DRY-RUN] Would remove $path ($description)"
+    else
+      log "Removing $path ($description)..."
+      rm -rf "$path"
+    fi
+  fi
+}
+
+# Helper to recreate empty directory and gitkeep
+reset_dir() {
+  local dir="$1"
+  if [ "$DRY_RUN" = "true" ]; then
+    log "[DRY-RUN] Would ensure $dir exists and has .gitkeep"
+  else
+    if [ ! -d "$dir" ]; then
+      mkdir -p "$dir"
+    fi
+    touch "$dir/.gitkeep"
+    log "Reset $dir"
+  fi
+}
+
+echo "initiating FACTORY RESET..."
+if [ "$DRY_RUN" = "true" ]; then
+  echo "(Mode: DRY-RUN. No changes will be made.)"
 fi
+
+# 1. Clear history completely (including runs, deep-thoughts, lessons, etc.)
+# We remove the entire directory contents but keep the root structure potentially?
+# Actually, deleting the folder and recreating is cleaner.
+clean_path "artifacts/history" "History artifacts"
+reset_dir "artifacts/history"
+reset_dir "artifacts/history/runs"
 
 # 2. Clear journals
-echo "Cleaning artifacts/journal..."
-if [ -d "artifacts/journal" ]; then
-  find artifacts/journal -mindepth 1 -delete
-  touch artifacts/journal/.gitkeep
-fi
+clean_path "artifacts/journal" "Journal entries"
+reset_dir "artifacts/journal"
 
-# 3. Clear logs (preserve context_manifest.md? Plan said regenerate. Let's wipe all.)
-echo "Cleaning artifacts/logs..."
-if [ -d "artifacts/logs" ]; then
-  find artifacts/logs -mindepth 1 -delete
-  touch artifacts/logs/.gitkeep
-fi
-rm -f artifacts/logs/agent_mode.json
+# 3. Clear logs
+clean_path "artifacts/logs" "Logs"
+reset_dir "artifacts/logs"
 
 # 4. Clear diffs
-echo "Cleaning artifacts/diffs..."
-if [ -d "artifacts/diffs" ]; then
-  find artifacts/diffs -mindepth 1 -delete
-  touch artifacts/diffs/.gitkeep
-fi
+clean_path "artifacts/diffs" "Diffs"
+reset_dir "artifacts/diffs"
 
 # 5. Clear test_results
-echo "Cleaning artifacts/test_results..."
-if [ -d "artifacts/test_results" ]; then
-  find artifacts/test_results -mindepth 1 -delete
-  touch artifacts/test_results/.gitkeep
-fi
+clean_path "artifacts/test_results" "Test results"
+reset_dir "artifacts/test_results"
 
-# 6. Truncate agent activity ledger
-echo "Resetting agent_activity.jsonl..."
-if [ -f "artifacts/agent_activity.jsonl" ]; then
-  : > artifacts/agent_activity.jsonl
+# 6. Reset agent activity ledger
+if [ "$DRY_RUN" = "true" ]; then
+  log "[DRY-RUN] Would truncate artifacts/agent_activity.jsonl"
+else
+  if [ -f "artifacts/agent_activity.jsonl" ]; then
+     : > "artifacts/agent_activity.jsonl"
+     log "Truncated artifacts/agent_activity.jsonl"
+  fi
 fi
-# Also reset agent_mode.json (already handled in step 3, but being certain)
-rm -f artifacts/logs/agent_mode.json
 
 # 7. Intent
 if [ "$INCLUDE_INTENT" = "true" ]; then
-  echo "Deleting artifacts/intent/project_intent.md..."
-  rm -f artifacts/intent/project_intent.md
+  clean_path "artifacts/intent/project_intent.md" "Project Intent"
 else
-  echo "Preserving artifacts/intent/project_intent.md (use --include-intent to wipe)."
+  log "Preserving artifacts/intent/project_intent.md"
 fi
 
 # 8. Reset AGENDA.md
-echo "Resetting AGENDA.md..."
-cat > AGENDA.md <<EOF
+if [ "$DRY_RUN" = "true" ]; then
+  log "[DRY-RUN] Would reset AGENDA.md to default state"
+else
+  cat > AGENDA.md <<EOF
 # Agenda
 
 **Status**: Active
@@ -110,5 +145,7 @@ cat > AGENDA.md <<EOF
 
 - None.
 EOF
+  log "Reset AGENDA.md"
+fi
 
-echo "Factory reset complete. Artifacts are clean."
+echo "Factory reset complete."

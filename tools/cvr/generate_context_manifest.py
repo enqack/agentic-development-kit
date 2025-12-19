@@ -82,6 +82,19 @@ def main():
     
     print(f"Context manifest generated: {output_file}")
 
+    # Log action
+    import subprocess
+    cmd = [
+        sys.executable,
+        str(root / "tools" / "cvr" / "log_action.py"),
+        "--intent", "prep-context",
+        "--action", "context_loaded",
+        "--scope", "context",
+        "--result", "ok",
+        "--evidence", str(output_file.relative_to(root))
+    ]
+    subprocess.run(cmd, check=True)
+
 
 if __name__ == "__main__":
     main()
