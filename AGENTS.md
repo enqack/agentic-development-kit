@@ -194,6 +194,20 @@ To ensure consistent and valid documentation artifacts:
 
 ______________________________________________________________________
 
+## Externally Managed Python Environments
+
+When a Python environment is externally managed (including but not limited to Nix, operating system package managers, or distribution-enforced policies), the system Python environment MUST be treated as immutable.
+
+Direct installation of Python packages into the system environment MUST NOT be attempted under any circumstances.
+
+A project-local Python virtual environment MUST be created and used for all Python package installation, execution, and tooling associated with agent operation.
+
+All Python commands that rely on third-party dependencies MUST be executed within the context of the virtual environment. Accidental success of package installation outside the virtual environment MUST NOT be interpreted as authorization to bypass this requirement.
+
+Failure to comply with this constraint constitutes a configuration error and invalidates the run.
+
+______________________________________________________________________
+
 ## Agent Operating Modes
 
 - **full-execution**: All artifacts and tests REQUIRED.
