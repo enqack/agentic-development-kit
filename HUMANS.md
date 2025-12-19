@@ -37,6 +37,38 @@ Triggers: `/plan-execution` or `/plan-hardening`
 - Run `python3 tools/close_run.py <run-id>` to seal the run.
 - **Result**: A "Deep Thoughts" journal entry is created in `artifacts/journal/`, summarizing the session.
 
+## 🤖 Agent Workflows
+
+You can interact with the agent using slash commands. Here is a guide to what they do:
+
+### Lifecycle Orchestration
+
+- **`/start`**: entry point for a new session or work cycle. (Input: `auto_approve: true` to skip plan review).
+- **`/plan-cycle`**: the main orchestrator that chains planning, execution, and review.
+- **`/finish`**: the unified "end-of-day" sequence to verify, review, and draft commits.
+
+### Setup & Intent
+
+- **`/establish-intent`**: define what we are building and what "done" looks like.
+- **`/prep-context`**: load `AGENTS.md` and internalize workspace rules.
+- **`/verify-agenda`**: validate the `AGENDA.md` state before planning work.
+
+### Planning & Execution
+
+- **`/plan-execution`**: produce a technical `implementation_plan.md` for your review.
+- **`/execute-plan`**: apply code changes and run verification tests.
+- **`/markdown-checklist`**: ensure documentation follows formatting and quality standards.
+
+### Review & History
+
+- **`/post-verify`**: reconcile the `AGENDA.md` against work actually completed.
+- **`/post-execution-review`**: extract and save "lessons learned" for institutional memory.
+- **`/commit-message`**: generate standard Conventional Commit messages for your review.
+
+### Maintenance
+
+- **`/toggle-maintenance-mode`**: enable/disable restricted access for modifying the ADK itself.
+
 ## 🛑 Panic Mode
 
 If the agent detects a missing strict precondition (like missing Intent), it will **Fail Closed**.

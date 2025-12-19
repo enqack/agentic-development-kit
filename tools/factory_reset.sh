@@ -59,6 +59,7 @@ if [ -d "artifacts/logs" ]; then
   find artifacts/logs -mindepth 1 -delete
   touch artifacts/logs/.gitkeep
 fi
+rm -f artifacts/logs/agent_mode.json
 
 # 4. Clear diffs
 echo "Cleaning artifacts/diffs..."
@@ -79,11 +80,8 @@ echo "Resetting agent_activity.jsonl..."
 if [ -f "artifacts/agent_activity.jsonl" ]; then
   : > artifacts/agent_activity.jsonl
 fi
-# Also reset agent_mode.json if it exists, likely to "normal" or just delete it?
-# Deleting it resets to default (which defaults to normal).
-if [ -f "artifacts/logs/agent_mode.json" ]; then
-   rm artifacts/logs/agent_mode.json
-fi
+# Also reset agent_mode.json (already handled in step 3, but being certain)
+rm -f artifacts/logs/agent_mode.json
 
 # 7. Intent
 if [ "$INCLUDE_INTENT" = "true" ]; then

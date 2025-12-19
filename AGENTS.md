@@ -47,11 +47,11 @@ The following paths are **off-limits** for all agent modifications:
 If the Verification Runtime has bugs, defects, or missing features:
 
 1. **STOP** – Do not attempt to fix or work around the issue.
-2. **NOTIFY** – Alert the operator with:
+1. **NOTIFY** – Alert the operator with:
    - Exact error or limitation encountered
    - Affected Runtime component (file path)
    - Suggested fix or feature request
-3. **DEFER** – The operator will either:
+1. **DEFER** – The operator will either:
    - Fix the Runtime themselves
    - Escalate to the ADK maintainer
    - Grant temporary `maintenance` mode access (see Operating Modes)
@@ -156,10 +156,10 @@ ______________________________________________________________________
 All non-trivial work MUST follow this loop:
 
 1. **Perceive** – Inspect current state and context
-2. **Plan** – Produce `artifacts/history/runs/<run-id>/implementation_plan.md`
-3. **Act** – Apply changes (only in `full-execution` mode)
-4. **Prove or Falsify** – Execute `tools/verify_all.sh`
-5. **Summarize** – Close the run to generate `artifacts/journal/<run-id>.md`
+1. **Plan** – Produce `artifacts/history/runs/<run-id>/implementation_plan.md`
+1. **Act** – Apply changes (only in `full-execution` mode)
+1. **Prove or Falsify** – Execute `tools/verify_all.sh`
+1. **Summarize** – Close the run to generate `artifacts/journal/<run-id>.md`
 
 Absence of proof is unresolved work.
 
