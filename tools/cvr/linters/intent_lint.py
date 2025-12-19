@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
 from tools.cvr import paths
 
-from tools.cvr.lint_common import die
+from lint_common import die
 
 ALLOWED = {"software", "writing", "research", "art", "mixed", "unknown"}
 
