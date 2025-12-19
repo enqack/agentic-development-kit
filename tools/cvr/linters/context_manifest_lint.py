@@ -2,10 +2,14 @@
 import re
 import sys
 from pathlib import Path
+
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
 from lint_common import die
 
 def main() -> int:
-  p = Path("artifacts/logs/context_manifest.md")
+  p = paths.CONTEXT_MANIFEST
   if not p.exists():
     return die("context_manifest_lint", "missing artifacts/logs/context_manifest.md (prep-context must emit it)")
 

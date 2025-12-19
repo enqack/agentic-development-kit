@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+import argparse
 import sys
-import json
-import datetime
 from pathlib import Path
+
+# Import canonical paths - scripts run from repo root
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from tools.cvr import paths
 from typing import Optional
 
 from journal import emit_journal
@@ -15,7 +18,7 @@ def note(msg: str):
     print(f"close_run: {msg}")
 
 def get_latest_run() -> Optional[Path]:
-    runs_dir = Path("artifacts/history/runs")
+    runs_dir = paths.RUNS_DIR
     if not runs_dir.exists():
         return None
     runs = sorted([d for d in runs_dir.iterdir() if d.is_dir()])
@@ -51,7 +54,7 @@ def update_global_lessons(lessons: list, run_name: str) -> int:
     if not lessons:
         return 0
         
-    global_file = Path("artifacts/history/lessons-learned.md")
+    global_file = paths.LESSONS_LEARNED
     
     # Ensure header
     if not global_file.exists():
@@ -90,7 +93,7 @@ def update_global_lessons(lessons: list, run_name: str) -> int:
 def main() -> int:
     if len(sys.argv) > 1:
         run_name = sys.argv[1]
-        run_dir = Path("artifacts/history/runs") / run_name
+        run_dir = paths.RUNS_DIR / run_name
     else:
         run_dir = get_latest_run()
         if not run_dir:

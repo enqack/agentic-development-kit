@@ -10,14 +10,16 @@ The project inside the repo may be software, writing, research, art, or mixed. T
 
 Automated, narrative reconstruction of every run.
 
+*Note: Deep Thoughts is a dramatized reconstruction derived from run artifacts, not a primary source of truth. It illustrates the decision process deterministically.*
+
 - **Narrative**: `artifacts/journal/<run-id>.md` (Theatrical, deterministic summary of Goal, Outcome, and Reflections).
-- **Timeline**: `docs/exec/deep-thoughts.md` (Reverse-chronological compilation of all journals).
+- **Timeline**: `artifacts/history/deep-thoughts.md` (Reverse-chronological compilation of all journals).
 
 ### 📜 Unified History
 
 Chronological event log merging hypotheses, agenda items, and journal entries.
 
-- **Data**: `docs/exec/history.ndjson`
+- **Data**: `artifacts/history/history.ndjson`
 - **Updates**: Automatically aggregated via `tools/aggregate_history.py`.
 
 ### 🛡️ Verification Suite
@@ -64,7 +66,7 @@ If you invoke a workflow that requires intent (e.g., `/plan-execution`) before i
 
 `.gitignore` and `.agentsignore` are NOT permission systems. They do not block file creation.
 
-- Planning artifacts MUST be written under `docs/exec/runs/<run-id>/` even though that directory is typically gitignored.
+- Planning artifacts MUST be written under `artifacts/history/runs/<run-id>/` even though that directory is typically gitignored.
 - Agents MUST NOT ask the user to "override gitignore" to create run artifacts.
 
 ## Tests are language-agnostic

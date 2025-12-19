@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+import json
+import re
+import sys
+from pathlib import Path
+
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
+from typing import List
+
 """Lint journal artifacts for policy compliance.
 
 Enforces:
@@ -6,10 +16,6 @@ Enforces:
 - Disclaimer presence
 - Path hygiene (no absolute paths or file URLs)
 """
-
-import sys
-from pathlib import Path
-from typing import List
 
 from lint_common import validate_paths
 
@@ -55,7 +61,7 @@ def lint_file(path: Path) -> List[str]:
 
 
 def main() -> int:
-    journal_dir = Path("artifacts/journal")
+    journal_dir = paths.JOURNAL_DIR
     if not journal_dir.exists():
         # No journals to lint
         print("journal_lint: no artifacts/journal directory; skipping")

@@ -33,10 +33,6 @@ artifacts/diffs/*
 !artifacts/agent_activity.jsonl
 !artifacts/logs/post_verify_report.md
 
-docs/exec/runs/*
-!docs/exec/runs/.gitkeep
-!docs/exec/runs/0000_TEMPLATE/
-
 # --- Safety: never commit local scratch ---
 *.swp
 *.tmp

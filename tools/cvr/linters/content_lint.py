@@ -2,6 +2,10 @@
 import re
 import sys
 from pathlib import Path
+
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
 from typing import List, Tuple
 from lint_common import die
 
@@ -58,8 +62,8 @@ def main() -> int:
             files_to_check.append(p)
             
     # Check artifacts in runs
-    if Path("artifacts/history/runs").exists():
-        for run_dir in Path("artifacts/history/runs").iterdir():
+    if paths.RUNS_DIR.exists():
+        for run_dir in paths.RUNS_DIR.iterdir():
             if run_dir.is_dir():
                 for name in MIN_WORDS.keys():
                     p = run_dir / name

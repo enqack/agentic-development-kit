@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 import sys
 from pathlib import Path
+
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
 import subprocess
 from lint_common import die, ABS_PATH_RE, TRUNC_RE
 
 
 def main() -> int:
-  report = Path("artifacts/logs/post_verify_report.md")
+  report = paths.POST_VERIFY_REPORT
   if not report.exists():
     return die("post_verify_lint", "missing artifacts/logs/post_verify_report.md")
 

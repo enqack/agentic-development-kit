@@ -252,6 +252,26 @@ Notes:
 
 - `history/` is the immutable run lineage and metadata spine.
 - Top-level `diffs/`, `logs/`, and `test_results/` MAY be used for shared or ad-hoc evidence, but Runs SHOULD record evidence under `history/runs/<run-id>/` for traceability.
+- **Python scripts**: Import canonical paths from `tools/cvr/paths.py` rather than hardcoding path strings. Use the pattern:
+  ```python
+  import sys
+  from pathlib import Path
+  sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+  from tools.cvr import paths
+  ```
+
+### Run ID Format
+
+Run IDs follow the format: `YYYY-MM-DD-HH-MM-SS[-HYP-####]`
+
+- Date and time in UTC
+- All components separated by hyphens
+- Optional hypothesis ID suffix: `-HYP-####`
+- Example: `2025-12-19-15-20-30` or `2025-12-19-15-20-30-HYP-0001`
+
+**Helper tool**: Use `tools/new_run.sh [hypothesis-id]` to create new run directories.
+
+**Legacy format**: `YYYY-MM-DD_HHMMSS` is still supported for backward compatibility.
 
 ______________________________________________________________________
 

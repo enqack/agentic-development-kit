@@ -16,6 +16,10 @@ from typing import List, Set, Tuple
 
 import jsonschema
 
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
+
 from lint_common import validate_paths
 
 def load_history_schema() -> dict:
@@ -23,7 +27,7 @@ def load_history_schema() -> dict:
   return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
-HISTORY_DIR = Path("artifacts/history")
+HISTORY_DIR = paths.HISTORY_DIR
 REQUIRED_ENTRY_KEYS = {"agenda_id", "hypothesis_id", "timestamp", "summary", "evidence"}
 HYP_RE = re.compile(r"^HYP-\d{4}$")
 AG_RE = re.compile(r"^AG-\d{6}$")

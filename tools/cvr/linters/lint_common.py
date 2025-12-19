@@ -10,6 +10,10 @@ This module consolidates common functionality used across multiple lint scripts:
 import re
 import sys
 from pathlib import Path
+
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
 from typing import Optional
 
 
@@ -42,7 +46,7 @@ def find_run_artifact(filename: str) -> Optional[Path]:
   Returns:
     Path to the first matching file, or None if not found
   """
-  runs = Path("artifacts/history/runs")
+  runs = paths.RUNS_DIR
   if not runs.exists():
     return None
   for p in runs.rglob(filename):

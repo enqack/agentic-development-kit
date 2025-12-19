@@ -3,11 +3,13 @@ import re
 import sys
 from pathlib import Path
 
-ALLOWED = {"software", "writing", "research", "art", "mixed", "unknown"}
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
 
-def die(msg: str) -> int:
-  print(f"intent_lint: ERROR: {msg}", file=sys.stderr)
-  return 1
+from tools.cvr.lint_common import die
+
+ALLOWED = {"software", "writing", "research", "art", "mixed", "unknown"}
 
 def parse_frontmatter(txt: str) -> dict[str, str]:
   # Minimal YAML frontmatter parser for key: value pairs and lists.
@@ -39,7 +41,7 @@ def parse_frontmatter(txt: str) -> dict[str, str]:
   return out
 
 def main() -> int:
-  p = Path("artifacts/intent/project_intent.md")
+  p = paths.PROJECT_INTENT
   if not p.exists():
     return die("missing artifacts/intent/project_intent.md (run establish-intent first)")
 

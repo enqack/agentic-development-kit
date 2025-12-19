@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 import sys
 from pathlib import Path
+
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
 from lint_common import die, find_run_artifact
 
 
@@ -20,7 +24,7 @@ def main() -> int:
     return die("run_artifacts_lint", "root contains forbidden execution artifacts: " + ", ".join(sorted(set(bad))))
 
   # Check if there are any run directories
-  runs_dir = Path("artifacts/history/runs")
+  runs_dir = paths.RUNS_DIR
   has_runs = False
   if runs_dir.exists():
     for child in runs_dir.iterdir():

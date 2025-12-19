@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
+import sys
 import re
 from pathlib import Path
+
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
+
 from lint_common import die, ABS_PATH_RE, TRUNC_RE
 
 # Match actual file:// URLs (file:// followed by non-whitespace/non-backtick chars)
@@ -17,7 +23,7 @@ def strip_backtick_content(text: str) -> str:
 
 
 def main() -> int:
-  p = Path("artifacts/history/lessons-learned.md")
+  p = paths.LESSONS_LEARNED
   if not p.exists():
     return die("lessons_lint", "artifacts/history/lessons-learned.md missing")
 

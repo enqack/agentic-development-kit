@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-import re
 import sys
 from pathlib import Path
+
+# Import canonical paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+from tools.cvr import paths
 from lint_common import die
 
 
 def main() -> int:
-  report_p = Path("artifacts/logs/post_verify_report.md")
+  report_p = paths.POST_VERIFY_REPORT
   agenda_p = Path("AGENDA.md")
   if not report_p.exists():
     return die("post_verify_agenda_lint", "missing artifacts/logs/post_verify_report.md")

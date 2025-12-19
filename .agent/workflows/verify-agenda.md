@@ -13,10 +13,11 @@ Precondition:
 
 If precondition is not met:
 
-- fail closed (panic) and immediately initiate `establish-intent` by asking:
+- **FAIL CLOSED**
+- Ask the operator:
   - "What are you trying to produce in this repo (software, book, research notes, something else), and what does 'done' look like for the first milestone?"
-- write `artifacts/intent/project_intent.md`
-- then continue with the requested workflow
+- Initiate the `establish-intent` workflow.
+- Do **not** continue with any other workflow until intent is established.
 
 Agenda items MUST be classified as one of:
 
